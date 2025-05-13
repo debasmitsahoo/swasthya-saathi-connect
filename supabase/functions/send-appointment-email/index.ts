@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email to patient
     const patientEmailResponse = await resend.emails.send({
-      from: "Swasthya Saathi <appointment@swasthyasaathi.org>",
+      from: "Swasthya Saathi <onboarding@resend.dev>",
       to: [email],
       subject: "Your Appointment Confirmation - Swasthya Saathi",
       html: `
@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send notification to hospital admin
     await resend.emails.send({
-      from: "Swasthya Saathi <appointment@swasthyasaathi.org>",
+      from: "Swasthya Saathi <onboarding@resend.dev>",
       to: ["admin@swasthyasaathi.org"], // Replace with your admin email
       subject: "New Appointment Booking",
       html: `
