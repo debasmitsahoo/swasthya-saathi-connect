@@ -15,6 +15,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const appointmentSchema = z.object({
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
@@ -78,6 +79,7 @@ const doctorsByDepartment: Record<string, Array<{ value: string; label: string }
 const AppointmentForm = () => {
   const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
@@ -89,21 +91,52 @@ const AppointmentForm = () => {
     },
   });
 
-  const onSubmit = (values: AppointmentFormValues) => {
-    toast.success("Appointment request submitted successfully!");
+  const onSubmit = async (values: AppointmentFormValues) => {
+    setIsSubmitting(true);
     
-    // Generate a reference number
-    const refNumber = "SS-" + Math.floor(100000 + Math.random() * 900000);
-    
-    // Navigate to confirmation page with the appointment details
-    navigate("/appointment/confirmation", { 
-      state: { 
-        ...values, 
-        refNumber,
-        departmentName: departments.find(d => d.value === values.department)?.label,
-        doctorName: doctorsByDepartment[values.department]?.find(d => d.value === values.doctor)?.label
-      } 
-    });
+    try {
+      // Generate a reference number
+      const refNumber = "SS-" + Math.floor(100000 + Math.random() * 900000);
+
+      // Get department and doctor names for better display
+      const departmentName = departments.find(d => d.value === values.department)?.label;
+      const doctorName = doctorsByDepartment[values.department]?.find(d => d.value === values.doctor)?.label;
+
+      // Send email notification
+      const { error } = await supabase.functions.invoke("send-appointment-email", {
+        body: {
+          fullName: values.fullName,
+          email: values.email,
+          phone: values.phone,
+          date: format(values.date, "EEEE, MMMM d, yyyy"),
+          time: values.time,
+          doctorName,
+          departmentName,
+          refNumber,
+        },
+      });
+
+      if (error) {
+        console.error("Error sending email:", error);
+        toast.error("Could not send confirmation email. Your appointment is still booked.");
+      } else {
+        toast.success("Appointment confirmed! Details sent to your email.");
+      }
+
+      // Navigate to confirmation page with the appointment details
+      navigate("/appointment/confirmation", { 
+        state: { 
+          ...values, 
+          refNumber,
+          departmentName,
+          doctorName
+        } 
+      });
+    } catch (error) {
+      console.error("Error processing appointment:", error);
+      toast.error("There was a problem booking your appointment. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -313,8 +346,9 @@ const AppointmentForm = () => {
                   type="submit" 
                   className="bg-medical-600 hover:bg-medical-700 text-white px-8"
                   size="lg"
+                  disabled={isSubmitting}
                 >
-                  Book Appointment
+                  {isSubmitting ? "Processing..." : "Book Appointment"}
                 </Button>
               </div>
             </form>
