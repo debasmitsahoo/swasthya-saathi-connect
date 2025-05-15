@@ -93,15 +93,18 @@ const Services = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" ref={cardsRef}>
           {services.map((service, index) => (
-            <Card key={index} className="service-card border-none shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
+            <Card 
+              key={index} 
+              className="service-card border-none shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-2"
+            >
               <CardHeader className="pb-2">
-                <div className="bg-medical-50 rounded-2xl p-4 w-fit mb-4 group-hover:bg-medical-100 transition-colors">
+                <div className="bg-medical-50 rounded-2xl p-4 w-fit mb-4 group-hover:bg-medical-100 transition-colors duration-300 transform group-hover:scale-110">
                   {service.icon}
                 </div>
-                <CardTitle className="text-xl text-medical-800">{service.title}</CardTitle>
+                <CardTitle className="text-xl text-medical-800 group-hover:text-medical-600 transition-colors duration-300">{service.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
                   {service.description}
                 </CardDescription>
               </CardContent>
@@ -110,8 +113,11 @@ const Services = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button className="bg-medical-600 hover:bg-medical-700 text-white px-8 py-6">
-            View All Services
+          <Button 
+            className="bg-medical-600 hover:bg-medical-700 text-white px-10 py-7 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
+          >
+            <span className="relative z-10">View All Services</span>
+            <span className="absolute inset-0 bg-gradient-to-r from-medical-500 to-medical-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
           </Button>
         </div>
       </div>

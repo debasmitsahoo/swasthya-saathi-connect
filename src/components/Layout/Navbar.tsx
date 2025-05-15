@@ -50,17 +50,17 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-4 md:px-6">
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2 group">
           <div
             className={`rounded-full bg-gradient-to-r from-medical-700 to-medical-500 p-1.5 
-            transition-all duration-300 ${isScrolled ? "scale-90" : ""}`}
+            transition-all duration-300 ${isScrolled ? "scale-90" : ""} group-hover:scale-105`}
           >
             <span className="text-white font-bold text-xl">SS</span>
           </div>
           <span
             className={`font-poppins font-semibold text-xl ${
               isScrolled ? "text-medical-900" : "text-medical-800"
-            }`}
+            } group-hover:text-medical-600 transition-colors duration-300`}
           >
             Swasthya Saathi
           </span>
@@ -70,34 +70,34 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-6">
           <button 
             onClick={() => scrollToSection("home")} 
-            className="text-medical-800 hover:text-medical-600 font-medium"
+            className="text-medical-800 hover:text-medical-600 font-medium relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-medical-600 after:origin-bottom-right after:transition-transform hover:after:scale-x-100 hover:after:origin-bottom-left after:duration-300"
           >
             Home
           </button>
           <button 
             onClick={() => scrollToSection("services")} 
-            className="text-medical-800 hover:text-medical-600 font-medium"
+            className="text-medical-800 hover:text-medical-600 font-medium relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-medical-600 after:origin-bottom-right after:transition-transform hover:after:scale-x-100 hover:after:origin-bottom-left after:duration-300"
           >
             Services
           </button>
           <button 
             onClick={() => scrollToSection("features")} 
-            className="text-medical-800 hover:text-medical-600 font-medium"
+            className="text-medical-800 hover:text-medical-600 font-medium relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-medical-600 after:origin-bottom-right after:transition-transform hover:after:scale-x-100 hover:after:origin-bottom-left after:duration-300"
           >
             About Us
           </button>
-          <Link to="/contact" className="text-medical-800 hover:text-medical-600 font-medium flex items-center gap-1">
-            <Mail size={16} />
+          <Link to="/contact" className="text-medical-800 hover:text-medical-600 font-medium flex items-center gap-1 group relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-medical-600 after:origin-bottom-right after:transition-transform hover:after:scale-x-100 hover:after:origin-bottom-left after:duration-300">
+            <Mail size={16} className="transition-transform group-hover:rotate-12" />
             Contact
           </Link>
           <div className="flex items-center space-x-3">
             <Link to="/admin">
-              <Button variant="outline" className="border-medical-600 text-medical-700 hover:bg-medical-50">
+              <Button variant="outline" className="border-medical-600 text-medical-700 hover:bg-medical-50 transition-all duration-300 hover:-translate-y-0.5">
                 Admin Login
               </Button>
             </Link>
             <Link to="/appointment">
-              <Button className="bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800">
+              <Button className="bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
                 Book Appointment
               </Button>
             </Link>
@@ -107,7 +107,7 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-medical-800 focus:outline-none"
+          className="md:hidden text-medical-800 focus:outline-none hover:text-medical-600 transition-colors duration-300"
         >
           {isMobileMenuOpen ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -127,25 +127,25 @@ const Navbar = () => {
           <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
             <button
               onClick={() => scrollToSection("home")}
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
+              className="text-medical-800 py-2 hover:text-medical-600 hover:pl-2 font-medium text-left transition-all duration-300"
             >
               Home
             </button>
             <button
               onClick={() => scrollToSection("services")}
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
+              className="text-medical-800 py-2 hover:text-medical-600 hover:pl-2 font-medium text-left transition-all duration-300"
             >
               Services
             </button>
             <button
               onClick={() => scrollToSection("features")}
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
+              className="text-medical-800 py-2 hover:text-medical-600 hover:pl-2 font-medium text-left transition-all duration-300"
             >
               About Us
             </button>
             <Link
               to="/contact"
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium flex items-center gap-1"
+              className="text-medical-800 py-2 hover:text-medical-600 hover:pl-2 font-medium flex items-center gap-1 transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <Mail size={16} />
@@ -153,12 +153,12 @@ const Navbar = () => {
             </Link>
             <div className="flex flex-col space-y-2 pt-2 pb-3">
               <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full border-medical-600 text-medical-700">
+                <Button variant="outline" className="w-full border-medical-600 text-medical-700 hover:bg-medical-50 transition-all duration-300">
                   Admin Login
                 </Button>
               </Link>
               <Link to="/appointment" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button className="w-full bg-gradient-to-r from-medical-600 to-medical-700">
+                <Button className="w-full bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800 transition-all duration-300">
                   Book Appointment
                 </Button>
               </Link>
