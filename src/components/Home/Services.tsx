@@ -2,9 +2,11 @@
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const services = [
   {
+    id: "general-consultation",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -15,6 +17,7 @@ const services = [
       "Our expert physicians provide comprehensive general health consultations for patients of all ages.",
   },
   {
+    id: "cardiology",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -25,6 +28,7 @@ const services = [
       "Specialized care for heart conditions including diagnostics, treatment, and preventive care.",
   },
   {
+    id: "laboratory",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -35,6 +39,7 @@ const services = [
       "Advanced diagnostic laboratory services with quick, accurate results for informed medical decisions.",
   },
   {
+    id: "surgery",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -104,21 +109,31 @@ const Services = () => {
                 <CardTitle className="text-xl text-medical-800 group-hover:text-medical-600 transition-colors duration-300">{service.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600 group-hover:text-gray-800 transition-colors duration-300">
+                <CardDescription className="text-gray-600 group-hover:text-gray-800 transition-colors duration-300 mb-3">
                   {service.description}
                 </CardDescription>
+                <Link to={`/services/${service.id}`}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-2 border-medical-300 text-medical-600 hover:bg-medical-50 hover:text-medical-700 transition-all duration-300"
+                  >
+                    Learn More
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <Button 
-            className="bg-medical-600 hover:bg-medical-700 text-white px-10 py-7 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
-          >
-            <span className="relative z-10">View All Services</span>
-            <span className="absolute inset-0 bg-gradient-to-r from-medical-500 to-medical-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-          </Button>
+          <Link to="/services">
+            <Button 
+              className="bg-medical-600 hover:bg-medical-700 text-white px-8 py-5 text-base font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
+            >
+              <span className="relative z-10">View All Services</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-medical-500 to-medical-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

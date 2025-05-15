@@ -13,6 +13,8 @@ import AppointmentConfirmation from "./pages/AppointmentConfirmation";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import NotFound from "./pages/NotFound";
+import ServicesPage from "./pages/ServicesPage";
+import ServicePage from "./components/Services/ServicePage";
 
 // For animations
 import { MotionConfig } from "framer-motion";
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/home" element={<Home />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:serviceId" element={<ServicePage />} />
             <Route path="/appointment" element={<AppointmentPage />} />
             <Route path="/appointment/confirmation" element={<AppointmentConfirmation />} />
             <Route path="/admin" element={<AdminLoginPage />} />

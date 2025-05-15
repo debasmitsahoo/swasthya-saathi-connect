@@ -1,5 +1,5 @@
-
 import { Link } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
 
 const Footer = () => {
   return (
@@ -40,22 +40,76 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link></li>
-              <li><Link to="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link></li>
-              <li><Link to="/about" className="text-gray-300 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link to="/appointment" className="text-gray-300 hover:text-white transition-colors">Book Appointment</Link></li>
+              <li>
+                <Link to="/" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <HashLink 
+                  to="/home#services" 
+                  className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline"
+                  smooth
+                >
+                  Services
+                </HashLink>
+              </li>
+              <li>
+                <HashLink 
+                  to="/home#features" 
+                  className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline"
+                  smooth
+                >
+                  About Us
+                </HashLink>
+              </li>
+              <li>
+                <Link 
+                  to="/contact" 
+                  className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/appointment" 
+                  className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline"
+                >
+                  Book Appointment
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Our Services</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">General Consultation</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Emergency Services</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Laboratory Tests</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Specialist Consultations</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Pharmacy Services</a></li>
+              <li>
+                <Link to="/services/general-consultation" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  General Consultation
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/emergency" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  Emergency Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/laboratory" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  Laboratory Tests
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/specialist" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  Specialist Consultations
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/pharmacy" className="text-gray-300 hover:text-white transition-colors duration-300 hover:underline">
+                  Pharmacy Services
+                </Link>
+              </li>
             </ul>
           </div>
 
