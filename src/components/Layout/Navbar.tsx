@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { Mail } from "lucide-react";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,13 +25,19 @@ const Navbar = () => {
   }, []);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      window.scrollTo({
-        top: element.offsetTop - 80, // Offset for navbar height
-        behavior: "smooth"
-      });
-      setIsMobileMenuOpen(false);
+    // Check if we're on the home page
+    if (location.pathname === "/" || location.pathname === "/home") {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        window.scrollTo({
+          top: element.offsetTop - 80, // Offset for navbar height
+          behavior: "smooth"
+        });
+        setIsMobileMenuOpen(false);
+      }
+    } else {
+      // If not on home page, navigate to home and then scroll
+      window.location.href = `/#${sectionId}`;
     }
   };
 
@@ -78,7 +86,8 @@ const Navbar = () => {
           >
             About Us
           </button>
-          <Link to="/contact" className="text-medical-800 hover:text-medical-600 font-medium">
+          <Link to="/contact" className="text-medical-800 hover:text-medical-600 font-medium flex items-center gap-1">
+            <Mail size={16} />
             Contact
           </Link>
           <div className="flex items-center space-x-3">
@@ -136,9 +145,10 @@ const Navbar = () => {
             </button>
             <Link
               to="/contact"
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium"
+              className="text-medical-800 py-2 hover:text-medical-600 font-medium flex items-center gap-1"
               onClick={() => setIsMobileMenuOpen(false)}
             >
+              <Mail size={16} />
               Contact
             </Link>
             <div className="flex flex-col space-y-2 pt-2 pb-3">
