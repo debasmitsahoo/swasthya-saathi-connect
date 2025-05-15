@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -27,7 +26,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className="relative bg-gradient-to-br from-white via-blue-50 to-medical-100 pt-28 pb-20 md:pb-16 md:pt-36 overflow-hidden">
+    <div id="home" className="relative bg-gradient-to-br from-white via-blue-50 to-medical-100 pt-28 pb-20 md:pb-16 md:pt-36 overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-medical-200 rounded-full filter blur-3xl animate-pulse-slow"></div>
@@ -54,11 +53,17 @@ const Hero = () => {
                   </svg>
                 </Button>
               </Link>
-              <Link to="/services">
-                <Button variant="outline" className="border-medical-600 text-medical-700 hover:bg-medical-50 px-8 py-6 text-lg rounded-lg">
-                  Our Services
-                </Button>
-              </Link>
+              <button 
+                onClick={() => {
+                  const servicesSection = document.getElementById("services");
+                  if (servicesSection) {
+                    servicesSection.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="border border-medical-600 text-medical-700 hover:bg-medical-50 px-8 py-6 text-lg rounded-lg"
+              >
+                Our Services
+              </button>
             </div>
             
             <div className="staggered-item staggered-enter-3 grid grid-cols-3 gap-4 pt-4 md:pt-8">

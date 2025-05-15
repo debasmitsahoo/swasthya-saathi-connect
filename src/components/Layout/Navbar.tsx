@@ -22,6 +22,17 @@ const Navbar = () => {
     };
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 80, // Offset for navbar height
+        behavior: "smooth"
+      });
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   return (
     <nav
       className={`fixed w-full z-50 transition-all duration-300 ${
@@ -49,15 +60,24 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className="text-medical-800 hover:text-medical-600 font-medium">
+          <button 
+            onClick={() => scrollToSection("home")} 
+            className="text-medical-800 hover:text-medical-600 font-medium"
+          >
             Home
-          </Link>
-          <Link to="/services" className="text-medical-800 hover:text-medical-600 font-medium">
+          </button>
+          <button 
+            onClick={() => scrollToSection("services")} 
+            className="text-medical-800 hover:text-medical-600 font-medium"
+          >
             Services
-          </Link>
-          <Link to="/about" className="text-medical-800 hover:text-medical-600 font-medium">
+          </button>
+          <button 
+            onClick={() => scrollToSection("features")} 
+            className="text-medical-800 hover:text-medical-600 font-medium"
+          >
             About Us
-          </Link>
+          </button>
           <Link to="/contact" className="text-medical-800 hover:text-medical-600 font-medium">
             Contact
           </Link>
@@ -96,27 +116,24 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md animate-fade-in">
           <div className="container mx-auto px-4 py-3 flex flex-col space-y-3">
-            <Link
-              to="/"
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
+            <button
+              onClick={() => scrollToSection("home")}
+              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
             >
               Home
-            </Link>
-            <Link
-              to="/services"
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
+            </button>
+            <button
+              onClick={() => scrollToSection("services")}
+              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
             >
               Services
-            </Link>
-            <Link
-              to="/about"
-              className="text-medical-800 py-2 hover:text-medical-600 font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
+            </button>
+            <button
+              onClick={() => scrollToSection("features")}
+              className="text-medical-800 py-2 hover:text-medical-600 font-medium text-left"
             >
               About Us
-            </Link>
+            </button>
             <Link
               to="/contact"
               className="text-medical-800 py-2 hover:text-medical-600 font-medium"

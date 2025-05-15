@@ -32,6 +32,14 @@ const App = () => (
             <Route path="/appointment/confirmation" element={<AppointmentConfirmation />} />
             <Route path="/admin" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/appointments" element={<AdminDashboardPage />} />
+            <Route path="/admin/patients" element={<AdminDashboardPage />} />
+            <Route path="/admin/doctors" element={<AdminDashboardPage />} />
+            <Route path="/admin/departments" element={<AdminDashboardPage />} />
+            <Route path="/admin/inventory" element={<AdminDashboardPage />} />
+            <Route path="/admin/billing" element={<AdminDashboardPage />} />
+            <Route path="/admin/reports" element={<AdminDashboardPage />} />
+            <Route path="/admin/settings" element={<AdminDashboardPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
