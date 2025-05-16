@@ -15,21 +15,16 @@ export interface DashboardStats {
   reports: number;
 }
 
-// This is a placeholder function until we have real tables in Supabase
-const getDummyStats = (): DashboardStats => {
-  return {
-    appointments: Math.floor(Math.random() * 100) + 200,
-    patients: Math.floor(Math.random() * 1000) + 12000,
-    doctors: Math.floor(Math.random() * 10) + 45,
-    departments: 8,
-    inventory: Math.floor(Math.random() * 200) + 500,
-    billing: Math.floor(Math.random() * 10000) + 60000,
-    reports: Math.floor(Math.random() * 50) + 100
-  };
-};
-
 export const useRealTimeData = () => {
-  const [stats, setStats] = useState<DashboardStats>(getDummyStats());
+  const [stats, setStats] = useState<DashboardStats>({
+    appointments: 0,
+    patients: 0,
+    doctors: 0,
+    departments: 0,
+    inventory: 0,
+    billing: 0,
+    reports: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -67,9 +62,39 @@ export const useRealTimeData = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // In a real implementation, we would fetch actual data from Supabase tables
-      // For now, we'll use dummy data that changes on each refresh
-      setStats(getDummyStats());
+      // Fetch counts from each table
+      const [
+        appointmentsResponse,
+        patientsResponse,
+        doctorsResponse,
+        departmentsResponse,
+        inventoryResponse,
+        billingResponse
+      ] = await Promise.all([
+        supabase.from('appointments').select('id', { count: 'exact', head: true }),
+        supabase.from('patients').select('id', { count: 'exact', head: true }),
+        supabase.from('doctors').select('id', { count: 'exact', head: true }),
+        supabase.from('departments').select('id', { count: 'exact', head: true }),
+        supabase.from('inventory').select('id', { count: 'exact', head: true }),
+        supabase.from('billing').select('id', { count: 'exact', head: true }),
+      ]);
+
+      // Fetch total billing amount
+      const { data: billingData } = await supabase
+        .from('billing')
+        .select('amount');
+
+      const totalBilling = billingData?.reduce((sum, bill) => sum + Number(bill.amount), 0) || 0;
+
+      setStats({
+        appointments: appointmentsResponse.count || 0,
+        patients: patientsResponse.count || 0,
+        doctors: doctorsResponse.count || 0,
+        departments: departmentsResponse.count || 0,
+        inventory: inventoryResponse.count || 0,
+        billing: totalBilling,
+        reports: 0, // This is a placeholder, you might want to create a reports table
+      });
       setError(null);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);

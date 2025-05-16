@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -26,7 +26,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, UserPlus } from "lucide-react";
 
 const appointmentsData = [
   { day: "Mon", count: 25 },
@@ -140,14 +140,21 @@ const AdminDashboard = () => {
     <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
       <div className="flex justify-between items-center">
         <Header />
-        <Button 
-          onClick={handleRefresh} 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center gap-1"
-        >
-          <RefreshCw className="h-4 w-4" /> Refresh Data
-        </Button>
+        <div className="flex gap-2">
+          <Link to="/admin/patient/register">
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <UserPlus className="h-4 w-4" /> Add New Patient
+            </Button>
+          </Link>
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="h-4 w-4" /> Refresh Data
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -170,8 +177,10 @@ const AdminDashboard = () => {
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.patients.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">+10% from last month</p>
+            <div className="text-2xl font-bold">
+              {loading ? "Loading..." : stats.patients.toLocaleString()}
+            </div>
+            <p className="text-xs text-gray-500">Updated in real-time</p>
           </CardContent>
         </Card>
         <Card className="bg-white shadow-sm">

@@ -12,6 +12,7 @@ import AppointmentPage from "./pages/AppointmentPage";
 import AppointmentConfirmation from "./pages/AppointmentConfirmation";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import PatientRegistrationPage from "./pages/Admin/PatientRegistrationPage";
 import NotFound from "./pages/NotFound";
 import ServicesPage from "./pages/ServicesPage";
 import ServicePage from "./components/Services/ServicePage";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/appointment/confirmation" element={<AppointmentConfirmation />} />
             <Route path="/admin" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/patient/register" element={<PatientRegistrationPage />} />
             <Route path="/admin/appointments" element={<AdminDashboardPage />} />
             <Route path="/admin/patients" element={<AdminDashboardPage />} />
             <Route path="/admin/doctors" element={<AdminDashboardPage />} />

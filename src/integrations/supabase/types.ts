@@ -9,7 +9,214 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          created_at: string
+          date: string
+          department: string
+          doctor: string
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          department: string
+          doctor: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status?: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          department?: string
+          doctor?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          patient_id: string
+          services: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          patient_id: string
+          services: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          patient_id?: string
+          services?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          created_at: string
+          doctors: number | null
+          head: string
+          id: string
+          name: string
+          patients: number | null
+          staff: number | null
+        }
+        Insert: {
+          created_at?: string
+          doctors?: number | null
+          head: string
+          id?: string
+          name: string
+          patients?: number | null
+          staff?: number | null
+        }
+        Update: {
+          created_at?: string
+          doctors?: number | null
+          head?: string
+          id?: string
+          name?: string
+          patients?: number | null
+          staff?: number | null
+        }
+        Relationships: []
+      }
+      doctors: {
+        Row: {
+          created_at: string
+          email: string
+          experience: string | null
+          id: string
+          name: string
+          phone: string | null
+          specialization: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          experience?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          specialization: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          experience?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          specialization?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          item: string
+          quantity: number | null
+          status: string
+          unit: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          item: string
+          quantity?: number | null
+          status?: string
+          unit: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          item?: string
+          quantity?: number | null
+          status?: string
+          unit?: string
+        }
+        Relationships: []
+      }
+      patients: {
+        Row: {
+          address: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
