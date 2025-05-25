@@ -1,4 +1,3 @@
-
 import { useLocation, Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -17,6 +16,7 @@ const ConfirmationPage = () => {
     fullName,
     email,
     phone,
+    gender,
     date,
     time,
     departmentName,
@@ -74,6 +74,7 @@ const ConfirmationPage = () => {
                   <p className="text-gray-800 font-medium">{fullName}</p>
                   <p className="text-gray-600">{email}</p>
                   <p className="text-gray-600">{phone}</p>
+                  <p className="text-gray-600">Gender: {gender}</p>
                 </div>
               </div>
               

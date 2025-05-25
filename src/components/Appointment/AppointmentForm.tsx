@@ -20,6 +20,7 @@ const appointmentSchema = z.object({
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().min(10, { message: "Phone number must be at least 10 digits" }),
+  gender: z.string({ required_error: "Please select your gender" }),
   date: z.date({ required_error: "Please select a date" }),
   time: z.string({ required_error: "Please select a time" }),
   department: z.string({ required_error: "Please select a department" }),
@@ -86,6 +87,7 @@ const AppointmentForm = () => {
       fullName: "",
       email: "",
       phone: "",
+      gender: "",
       message: "",
     },
   });
@@ -159,6 +161,29 @@ const AppointmentForm = () => {
                       <FormControl>
                         <Input placeholder="Enter your full name" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
