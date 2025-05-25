@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -102,39 +101,38 @@ const AppointmentForm = () => {
       const departmentName = departments.find(d => d.value === values.department)?.label;
       const doctorName = doctorsByDepartment[values.department]?.find(d => d.value === values.doctor)?.label;
 
-      // Send email notification
-      const { error } = await supabase.functions.invoke("send-appointment-email", {
-        body: {
-          fullName: values.fullName,
-          email: values.email,
-          phone: values.phone,
-          date: format(values.date, "EEEE, MMMM d, yyyy"),
-          time: values.time,
-          doctorName,
-          departmentName,
-          refNumber,
-        },
-      });
+      if (!departmentName || !doctorName) {
+        throw new Error("Invalid department or doctor selection");
+      }
 
-      if (error) {
-        console.error("Error sending email:", error);
-        toast.error("Could not send confirmation email. Your appointment is still booked.");
-      } else {
-        toast.success("Appointment confirmed! Details sent to your email.");
+      // Split the full name into first and last name
+      const nameParts = values.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+      if (!firstName || !lastName) {
+        throw new Error("Please enter both first and last name");
       }
 
       // Navigate to confirmation page with the appointment details
       navigate("/appointment/confirmation", { 
         state: { 
-          ...values, 
-          refNumber,
+          firstName,
+          lastName,
+          email: values.email,
+          phone: values.phone,
+          date: format(values.date, 'MMMM d, yyyy'),
+          time: values.time,
           departmentName,
-          doctorName
+          doctorName,
+          refNumber,
+          notes: values.message
         } 
       });
     } catch (error) {
       console.error("Error processing appointment:", error);
-      toast.error("There was a problem booking your appointment. Please try again.");
+      toast.error(error instanceof Error ? error.message : "There was a problem booking your appointment. Please try again.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -360,3 +358,4 @@ const AppointmentForm = () => {
 };
 
 export default AppointmentForm;
+

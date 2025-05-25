@@ -2,10 +2,44 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://vglomjamzoackguysqqr.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnbG9tamFtem9hY2tndXlzcXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMTI1MDIsImV4cCI6MjA2MjY4ODUwMn0.wlIDnrjbJrwQXyP0o7rV05Dn30-HImL_SFj_73pRqVA";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+});
+
+// Test database connection
+export const testDatabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('count', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Database connection test failed:', error);
+      return false;
+    }
+
+    console.log('Database connection successful');
+    return true;
+  } catch (err) {
+    console.error('Database connection test failed:', err);
+    return false;
+  }
+};

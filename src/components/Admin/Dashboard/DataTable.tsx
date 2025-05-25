@@ -1,118 +1,148 @@
-
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Eye, 
-  Edit, 
-  Trash2, 
-  CheckCircle, 
-  XCircle, 
-  Clock
-} from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-export interface DataTableProps {
+interface Column {
+  key: string;
+  label: string;
+}
+
+interface DataTableProps {
   data: any[];
-  columns: { key: string; label: string }[];
+  columns: Column[];
   title: string;
-  description?: string;
   onView?: (item: any) => void;
   onEdit?: (item: any) => void;
   onDelete?: (item: any) => void;
-  emptyMessage?: string;
 }
 
-const getStatusBadge = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case "active":
-    case "completed":
-    case "paid":
-      return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" /> {status}</Badge>;
-    case "pending":
-    case "scheduled":
-      return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="h-3 w-3 mr-1" /> {status}</Badge>;
-    case "cancelled":
-    case "discharged":
-    case "inactive":
-      return <Badge className="bg-gray-100 text-gray-800"><XCircle className="h-3 w-3 mr-1" /> {status}</Badge>;
-    default:
-      return <Badge>{status}</Badge>;
-  }
-};
+const DataTable = ({ data, columns, title, onView, onEdit, onDelete }: DataTableProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'active':
+      case 'scheduled':
+      case 'paid':
+      case 'in stock':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+      case 'on leave':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'cancelled':
+      case 'no show':
+      case 'out of stock':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-const DataTable = ({
-  data,
-  columns,
-  title,
-  description,
-  onView,
-  onEdit,
-  onDelete,
-  emptyMessage = "No data available",
-}: DataTableProps) => {
+  const formatValue = (value: any, key: string) => {
+    if (value === null || value === undefined) return '-';
+
+    // Format dates
+    if (value instanceof Date || (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/))) {
+      return new Date(value).toLocaleDateString();
+    }
+
+    // Format currency
+    if (key.toLowerCase().includes('amount') || key.toLowerCase().includes('price')) {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR'
+      }).format(value);
+    }
+
+    // Format status with badge
+    if (key.toLowerCase().includes('status')) {
+      return (
+        <Badge variant="secondary" className={getStatusColor(value)}>
+          {value}
+        </Badge>
+      );
+    }
+
+    // Format numbers with commas
+    if (typeof value === 'number') {
+      return value.toLocaleString();
+    }
+
+    return value;
+  };
+
   return (
-    <Table>
-      {title && <TableCaption>{description || title}</TableCaption>}
-      <TableHeader>
-        <TableRow>
-          {columns.map((column) => (
-            <TableHead key={column.key}>{column.label}</TableHead>
-          ))}
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.length === 0 ? (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={columns.length + 1} className="text-center py-8">
-              {emptyMessage}
-            </TableCell>
+            {columns.map((column) => (
+              <TableHead key={column.key}>{column.label}</TableHead>
+            ))}
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
-        ) : (
-          data.map((item, index) => (
-            <TableRow key={item.id || index}>
-              {columns.map((column) => (
-                <TableCell key={`${item.id}-${column.key}`}>
-                  {column.key === "status" ? (
-                    getStatusBadge(item[column.key])
-                  ) : (
-                    item[column.key]
-                  )}
-                </TableCell>
-              ))}
-              <TableCell className="text-right space-x-1">
-                {onView && (
-                  <Button variant="ghost" size="icon" onClick={() => onView(item)}>
-                    <Eye className="h-4 w-4" />
-                    <span className="sr-only">View</span>
-                  </Button>
-                )}
-                {onEdit && (
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button variant="ghost" size="icon" onClick={() => onDelete(item)}>
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                )}
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length + 1} className="text-center py-8 text-gray-500">
+                No {title.toLowerCase()} found
               </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            data.map((item, index) => (
+              <TableRow key={item.id || index}>
+                {columns.map((column) => (
+                  <TableCell key={column.key}>
+                    {formatValue(item[column.key], column.key)}
+                  </TableCell>
+                ))}
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    {onView && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onView(item)}
+                        title="View"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {onEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(item)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(item)}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

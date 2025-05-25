@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -26,236 +26,785 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { RefreshCw, UserPlus } from "lucide-react";
+import { 
+  RefreshCw, 
+  UserPlus, 
+  Plus, 
+  Package, 
+  Users, 
+  Stethoscope, 
+  Building2, 
+  ClipboardList,
+  DollarSign,
+  FileText,
+  Settings,
+  Bell,
+  Search,
+  Calendar
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { initializeDatabase } from '@/integrations/supabase/init';
+import { testDatabaseConnection } from '@/integrations/supabase/client';
 
-const appointmentsData = [
-  { day: "Mon", count: 25 },
-  { day: "Tue", count: 40 },
-  { day: "Wed", count: 35 },
-  { day: "Thu", count: 45 },
-  { day: "Fri", count: 30 },
-  { day: "Sat", count: 20 },
-  { day: "Sun", count: 15 },
+export interface Column {
+  key: string;
+  label: string;
+}
+
+interface Appointment {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  department_id: string;
+  date: string;
+  time: string;
+  status: string;
+  patient: {
+    first_name: string;
+    last_name: string;
+  };
+  doctor: {
+    name: string;
+  };
+  department: {
+    name: string;
+  };
+}
+
+interface DashboardStats {
+  patients: number;
+  appointments: number;
+  doctors: number;
+  revenue: number;
+}
+
+const appointmentColumns: Column[] = [
+  { key: 'patient_name', label: 'Patient' },
+  { key: 'doctor_name', label: 'Doctor' },
+  { key: 'department_name', label: 'Department' },
+  { key: 'date', label: 'Date' },
+  { key: 'time', label: 'Time' },
+  { key: 'status', label: 'Status' },
 ];
 
-const departmentData = [
-  { name: "Cardiology", value: 20 },
-  { name: "Orthopedics", value: 15 },
-  { name: "General Medicine", value: 25 },
-  { name: "Pediatrics", value: 18 },
-  { name: "Neurology", value: 12 },
-];
+// Add type for database response
+interface AppointmentResponse {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  department_id: string;
+  date: string;
+  time: string;
+  status: string;
+  notes: string | null;
+  patients: {
+    first_name: string;
+    last_name: string;
+  } | null;
+  doctors: {
+    name: string;
+  } | null;
+  departments: {
+    name: string;
+  } | null;
+}
 
-const revenueData = [
-  {
-    name: "Jan",
-    primary: 40000,
-    secondary: 24000,
-  },
-  {
-    name: "Feb",
-    primary: 30000,
-    secondary: 18000,
-  },
-  {
-    name: "Mar",
-    primary: 45000,
-    secondary: 28000,
-  },
-  {
-    name: "Apr",
-    primary: 50000,
-    secondary: 31000,
-  },
-  {
-    name: "May",
-    primary: 65000,
-    secondary: 36000,
-  },
-  {
-    name: "Jun",
-    primary: 60000,
-    secondary: 40000,
-  },
-];
-
-// Mock data for each section
-const mockAppointments = [
-  { id: 'A001', patient: "Rahul Sharma", doctor: "Dr. Patel", department: "Cardiology", date: "2024-05-13", time: "10:00 AM", status: "Scheduled" },
-  { id: 'A002', patient: "Priya Singh", doctor: "Dr. Gupta", department: "Orthopedics", date: "2024-05-13", time: "11:30 AM", status: "Completed" },
-  { id: 'A003', patient: "Amit Kumar", doctor: "Dr. Reddy", department: "Neurology", date: "2024-05-14", time: "09:15 AM", status: "Scheduled" },
-  { id: 'A004', patient: "Sunita Verma", doctor: "Dr. Shah", department: "General Medicine", date: "2024-05-14", time: "02:00 PM", status: "Cancelled" },
-  { id: 'A005', patient: "Kiran Desai", doctor: "Dr. Khan", department: "Pediatrics", date: "2024-05-15", time: "10:45 AM", status: "Scheduled" },
-];
-
-const mockPatients = [
-  { id: 'P001', name: "Rahul Sharma", age: 45, gender: "Male", phone: "+91 9876543210", address: "Mumbai", lastVisit: "2024-05-01", status: "Active" },
-  { id: 'P002', name: "Priya Singh", age: 32, gender: "Female", phone: "+91 8765432109", address: "Delhi", lastVisit: "2024-04-28", status: "Active" },
-  { id: 'P003', name: "Amit Kumar", age: 56, gender: "Male", phone: "+91 7654321098", address: "Bangalore", lastVisit: "2024-05-10", status: "Active" },
-  { id: 'P004', name: "Sunita Verma", age: 28, gender: "Female", phone: "+91 6543210987", address: "Hyderabad", lastVisit: "2024-03-15", status: "Inactive" },
-  { id: 'P005', name: "Kiran Desai", age: 8, gender: "Female", phone: "+91 5432109876", address: "Chennai", lastVisit: "2024-05-05", status: "Active" },
-];
-
-const mockDoctors = [
-  { id: 'D001', name: "Dr. Patel", specialization: "Cardiology", experience: "15 years", phone: "+91 9876543210", email: "patel@hospital.com", status: "Active" },
-  { id: 'D002', name: "Dr. Gupta", specialization: "Orthopedics", experience: "10 years", phone: "+91 8765432109", email: "gupta@hospital.com", status: "Active" },
-  { id: 'D003', name: "Dr. Reddy", specialization: "Neurology", experience: "12 years", phone: "+91 7654321098", email: "reddy@hospital.com", status: "Active" },
-  { id: 'D004', name: "Dr. Shah", specialization: "General Medicine", experience: "8 years", phone: "+91 6543210987", email: "shah@hospital.com", status: "On Leave" },
-  { id: 'D005', name: "Dr. Khan", specialization: "Pediatrics", experience: "14 years", phone: "+91 5432109876", email: "khan@hospital.com", status: "Active" },
-];
-
-const mockDepartments = [
-  { id: 'DEP001', name: "Cardiology", head: "Dr. Patel", doctors: 8, staff: 15, patients: 120 },
-  { id: 'DEP002', name: "Orthopedics", head: "Dr. Gupta", doctors: 6, staff: 12, patients: 95 },
-  { id: 'DEP003', name: "Neurology", head: "Dr. Reddy", doctors: 5, staff: 10, patients: 78 },
-  { id: 'DEP004', name: "General Medicine", head: "Dr. Shah", doctors: 10, staff: 20, patients: 200 },
-  { id: 'DEP005', name: "Pediatrics", head: "Dr. Khan", doctors: 7, staff: 14, patients: 150 },
-];
-
-const mockInventory = [
-  { id: 'INV001', item: "Surgical Masks", category: "PPE", quantity: 5000, unit: "pieces", status: "In Stock" },
-  { id: 'INV002', item: "Paracetamol", category: "Medication", quantity: 2000, unit: "strips", status: "Low Stock" },
-  { id: 'INV003', item: "Surgical Gloves", category: "PPE", quantity: 3000, unit: "pairs", status: "In Stock" },
-  { id: 'INV004', item: "Insulin", category: "Medication", quantity: 500, unit: "vials", status: "In Stock" },
-  { id: 'INV005', item: "IV Sets", category: "Equipment", quantity: 1000, unit: "pieces", status: "In Stock" },
-];
-
-const mockBilling = [
-  { id: 'B001', patient: "Rahul Sharma", amount: 15000, date: "2024-05-01", services: "Consultation, ECG", status: "Paid" },
-  { id: 'B002', patient: "Priya Singh", amount: 8500, date: "2024-04-28", services: "X-ray, Consultation", status: "Paid" },
-  { id: 'B003', patient: "Amit Kumar", amount: 25000, date: "2024-05-10", services: "MRI, Consultation", status: "Pending" },
-  { id: 'B004', patient: "Sunita Verma", amount: 5000, date: "2024-03-15", services: "Blood Test, Consultation", status: "Paid" },
-  { id: 'B005', patient: "Kiran Desai", amount: 3500, date: "2024-05-05", services: "Consultation", status: "Paid" },
-];
+// Add type for appointment insert
+interface AppointmentInsert {
+  patient_id: string;
+  doctor: string;
+  department: string;
+  date: string;
+  time: string;
+  status: string;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const AdminDashboard = () => {
   const { stats, loading, error, refreshData } = useRealTimeData();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<DataEntity | 'dashboard'>('dashboard');
-  
-  const handleRefresh = () => {
+
+  // Real appointment data state
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    date: '',
+    time: '',
+    doctor: '',
+    department: '',
+    status: '',
+    notes: ''
+  });
+
+  // Fetch doctors for the appointment form
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(false);
+  const [appointmentDoctors, setAppointmentDoctors] = useState<any[]>([]);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [addType, setAddType] = useState<'patient' | 'doctor' | 'inventory'>('patient');
+  const [addFormData, setAddFormData] = useState<any>({});
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Update active tab based on current route
+  useEffect(() => {
+    const path = location.pathname.split('/').pop() || 'dashboard';
+    setActiveTab(path as DataEntity | 'dashboard');
+  }, [location.pathname]);
+
+  // Fetch appointments from Supabase
+  useEffect(() => {
+    if (activeTab === 'appointments') {
+      fetchAppointments();
+    }
+  }, [activeTab]);
+
+  // Fetch doctors for the appointment form
+  useEffect(() => {
+    if (activeTab === 'doctors') {
+      fetchDoctors();
+    }
+  }, [activeTab]);
+
+  // Fetch doctors for both appointment form and doctors list
+  const fetchDoctors = async () => {
+    setDoctorsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('doctors')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Update both doctors lists
+      setDoctors(data || []);
+      setAppointmentDoctors(data || []);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      toast.error('Failed to fetch doctors');
+    } finally {
+      setDoctorsLoading(false);
+    }
+  };
+
+  const fetchAppointments = async () => {
+    try {
+      setLoadingAppointments(true);
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+          id,
+          patient_id,
+          doctor_id,
+          department_id,
+          date,
+          time,
+          status,
+          notes,
+          patients:patient_id(first_name, last_name),
+          doctors:doctor_id(name),
+          departments:department_id(name)
+        `)
+        .order('date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching appointments:', error);
+        toast.error(`Failed to fetch appointments: ${error.message}`);
+        throw error;
+      }
+
+      if (!data) {
+        setAppointments([]);
+        return;
+      }
+
+      const formattedAppointments = (data as unknown as AppointmentResponse[]).map(appointment => ({
+        id: appointment.id,
+        patient_id: appointment.patient_id,
+        doctor_id: appointment.doctor_id,
+        department_id: appointment.department_id,
+        date: new Date(appointment.date).toLocaleDateString(),
+        time: appointment.time,
+        status: appointment.status,
+        notes: appointment.notes,
+        patient_name: `${appointment.patients?.first_name || ''} ${appointment.patients?.last_name || ''}`.trim(),
+        doctor_name: appointment.doctors?.name || '',
+        department_name: appointment.departments?.name || ''
+      }));
+
+      setAppointments(formattedAppointments);
+    } catch (error: any) {
+      console.error('Error fetching appointments:', error);
+      toast.error(error.message || 'Failed to fetch appointments');
+      setAppointments([]);
+    } finally {
+      setLoadingAppointments(false);
+    }
+  };
+
+  // Add this function to handle appointment booking
+  const handleBookAppointment = async (appointmentData: any) => {
+    try {
+      console.log('Raw appointment data:', appointmentData);
+      
+      // Validate required fields
+      if (!appointmentData.patient_id || !appointmentData.doctor_id || !appointmentData.department_id || !appointmentData.date || !appointmentData.time) {
+        console.error('Missing required fields:', {
+          patient_id: appointmentData.patient_id,
+          doctor_id: appointmentData.doctor_id,
+          department_id: appointmentData.department_id,
+          date: appointmentData.date,
+          time: appointmentData.time
+        });
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      // Format the date to YYYY-MM-DD
+      const formattedDate = new Date(appointmentData.date).toISOString().split('T')[0];
+      
+      const appointmentInsert: AppointmentInsert = {
+        patient_id: appointmentData.patient_id,
+        doctor: appointmentData.doctor_id,
+        department: appointmentData.department_id,
+        date: formattedDate,
+        time: appointmentData.time,
+        status: 'Scheduled',
+        notes: appointmentData.notes || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Attempting to insert appointment with data:', appointmentInsert);
+
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert([appointmentInsert])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        toast.error(`Failed to book appointment: ${error.message}`);
+        throw error;
+      }
+
+      console.log('Successfully created appointment:', data);
+      toast.success('Appointment booked successfully');
+      fetchAppointments(); // Refresh the appointments list
+      return data;
+    } catch (error: any) {
+      console.error('Error booking appointment:', error);
+      toast.error(error.message || 'Failed to book appointment');
+      throw error;
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as DataEntity | 'dashboard');
+    if (value === 'dashboard') {
+      navigate('/admin');
+    } else {
+      navigate(`/admin/${value}`);
+    }
+  };
+
+  // Mock data
+  const patients = [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "123-456-7890",
+      address: "123 Main St",
+      status: "Active",
+      lastVisit: "2024-03-15"
+    },
+    // ... existing code ...
+  ];
+
+  const departments = [
+    {
+      id: 1,
+      name: "Cardiology",
+      head: "Dr. Smith",
+      doctors: 5,
+      staff: 10,
+      patients: 150
+    },
+    // ... existing code ...
+  ];
+
+  const inventory = [
+    {
+      id: 1,
+      item: "Aspirin",
+      category: "Medication",
+      quantity: 1000,
+      unit: "tablets",
+      status: "In Stock"
+    },
+    // ... existing code ...
+  ];
+
+  const billing = [
+    {
+      id: 1,
+      patient: "John Doe",
+      amount: 150.00,
+      date: "2024-03-20",
+      services: "Consultation",
+      status: "Paid"
+    },
+    // ... existing code ...
+  ];
+
+  const handleViewAppointment = (appointment: any) => {
+    // TODO: Implement view appointment details in a modal or new page
+    console.log('View appointment:', appointment);
+    toast.info('View functionality coming soon');
+  };
+
+  const handleEditAppointment = (appointment: any) => {
+    setEditingAppointment(appointment);
+    setFormData({
+      date: appointment.date || '',
+      time: appointment.time || '',
+      doctor: appointment.doctor || '',
+      department: appointment.department || '',
+      status: appointment.status || '',
+      notes: appointment.notes || ''
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingAppointment) return;
+
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({
+          date: formData.date,
+          time: formData.time,
+          doctor: formData.doctor,
+          department: formData.department,
+          status: formData.status,
+          notes: formData.notes,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingAppointment.id);
+
+      if (error) throw error;
+
+      toast.success('Appointment updated successfully');
+      fetchAppointments(); // Refresh the list
+      setShowEditDialog(false);
+      setEditingAppointment(null);
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      toast.error('Failed to update appointment');
+    }
+  };
+
+  const handleDeleteAppointment = async (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteAppointment = async () => {
+    if (!selectedAppointment) return;
+
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .delete()
+        .eq('id', selectedAppointment.id);
+
+      if (error) throw error;
+
+      toast.success('Appointment deleted successfully');
+      fetchAppointments(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      toast.error('Failed to delete appointment');
+    } finally {
+      setShowDeleteDialog(false);
+      setSelectedAppointment(null);
+    }
+  };
+
+  const handleAddNew = (type: 'patient' | 'doctor' | 'inventory') => {
+    setAddType(type);
+    setAddFormData({});
+    setShowAddDialog(true);
+  };
+
+  const handleAddFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAddFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleAddSave = async () => {
+    if (!addType) return;
+
+    try {
+      let data: any = {};
+
+      switch (addType) {
+        case 'patient':
+          data = {
+            first_name: addFormData.first_name,
+            last_name: addFormData.last_name,
+            email: addFormData.email,
+            phone: addFormData.phone,
+            address: addFormData.address,
+            date_of_birth: addFormData.date_of_birth,
+            created_at: new Date().toISOString()
+          };
+          await supabase.from('patients').insert([data]);
+          break;
+        case 'doctor':
+          // Validate required fields
+          if (!addFormData.name || !addFormData.specialization) {
+            toast.error('Name and specialization are required');
+            return;
+          }
+
+          data = {
+            name: addFormData.name,
+            specialization: addFormData.specialization,
+            experience: addFormData.experience || '0 years',
+            phone: addFormData.phone || '',
+            email: addFormData.email || '',
+            status: 'Active',
+            created_at: new Date().toISOString()
+          };
+
+          console.log('Adding doctor with data:', data);
+
+          const { data: insertedDoctor, error: insertError } = await supabase
+            .from('doctors')
+            .insert([data])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error inserting doctor:', insertError);
+            throw insertError;
+          }
+
+          console.log('Successfully inserted doctor:', insertedDoctor);
+          
+          // Immediately fetch updated doctors list
+          await fetchDoctors();
+          break;
+        case 'inventory':
+          data = {
+            item: addFormData.item,
+            category: addFormData.category,
+            quantity: parseInt(addFormData.quantity),
+            unit: addFormData.unit,
+            status: 'In Stock',
+            created_at: new Date().toISOString()
+          };
+          await supabase.from('inventory').insert([data]);
+          break;
+      }
+
+      toast.success(`${addType.charAt(0).toUpperCase() + addType.slice(1)} added successfully`);
+      setShowAddDialog(false);
+      setAddType(null);
+      setAddFormData({}); // Clear form data
+      
+    } catch (error: any) {
+      console.error(`Error adding ${addType}:`, error);
+      toast.error(error.message || `Failed to add ${addType}`);
+    }
+  };
+
+  const getTabIcon = (tab: string) => {
+    switch (tab) {
+      case 'dashboard':
+        return <ClipboardList className="w-4 h-4" />;
+      case 'appointments':
+        return <Calendar className="w-4 h-4" />;
+      case 'patients':
+        return <Users className="w-4 h-4" />;
+      case 'doctors':
+        return <Stethoscope className="w-4 h-4" />;
+      case 'departments':
+        return <Building2 className="w-4 h-4" />;
+      case 'inventory':
+        return <Package className="w-4 h-4" />;
+      case 'billing':
+        return <DollarSign className="w-4 h-4" />;
+      case 'reports':
+        return <FileText className="w-4 h-4" />;
+      default:
+        return null;
+    }
+  };
+
+  useEffect(() => {
+    const checkDatabase = async () => {
+      try {
+        // Test database connection
+        const isConnected = await testDatabaseConnection();
+        if (!isConnected) {
+          toast.error('Database connection failed');
+          return;
+        }
+
+        // Initialize database
+        const isInitialized = await initializeDatabase();
+        if (!isInitialized) {
+          toast.error('Database not initialized');
+          return;
+        }
+
+        // If both checks pass, refresh data
     refreshData();
+      } catch (err) {
+        console.error('Database check failed:', err);
+        toast.error('Failed to check database status');
+      }
+    };
+
+    checkDatabase();
+  }, [refreshData]);
+
+  // Update the appointments tab content
+  const renderAppointmentsTab = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Appointments</h2>
+        <Button onClick={fetchAppointments} disabled={loadingAppointments}>
+          {loadingAppointments ? 'Loading...' : 'Refresh'}
+        </Button>
+      </div>
+      <DataTable
+        data={appointments}
+        columns={appointmentColumns}
+        title="Appointments"
+        onView={(row) => {
+          // Handle view appointment
+          console.log('View appointment:', row);
+        }}
+        onEdit={(row) => {
+          // Handle edit appointment
+          console.log('Edit appointment:', row);
+        }}
+        onDelete={(row) => {
+          // Handle delete appointment
+          console.log('Delete appointment:', row);
+        }}
+      />
+    </div>
+  );
+
+  // Update the tab content rendering
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'appointments':
+        return renderAppointmentsTab();
+      // ... other cases ...
+    }
   };
 
   return (
-    <div className="flex flex-1 flex-col space-y-6 p-4 md:p-6">
-      <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="flex gap-2">
-          <Link to="/admin/patient/register">
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <UserPlus className="h-4 w-4" /> Add New Patient
+      
+      <div className="container mx-auto px-4 py-6">
+        {/* Search and Actions Bar */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative w-96">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
             </Button>
-          </Link>
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-          >
-            <RefreshCw className="h-4 w-4" /> Refresh Data
+            <Button variant="outline" size="sm">
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+            </Button>
+            <Button variant="outline" size="sm">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
           </Button>
         </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "Loading..." : stats.patients.toLocaleString()}
+        {/* Main Content */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Sidebar */}
+          <div className="col-span-2">
+            <Card>
+              <CardContent className="p-4">
+                <nav className="space-y-2">
+                  {[
+                    { id: 'dashboard', label: 'Dashboard' },
+                    { id: 'appointments', label: 'Appointments' },
+                    { id: 'patients', label: 'Patients' },
+                    { id: 'doctors', label: 'Doctors' },
+                    { id: 'departments', label: 'Departments' },
+                    { id: 'inventory', label: 'Inventory' },
+                    { id: 'billing', label: 'Billing' },
+                    { id: 'reports', label: 'Reports' },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.id}
+                      variant={activeTab === tab.id ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => handleTabChange(tab.id)}
+                    >
+                      {getTabIcon(tab.id)}
+                      <span className="ml-2">{tab.label}</span>
+                    </Button>
+                  ))}
+                </nav>
+              </CardContent>
+            </Card>
             </div>
-            <p className="text-xs text-gray-500">Updated in real-time</p>
+
+          {/* Main Content Area */}
+          <div className="col-span-10">
+            <ScrollArea className="h-[calc(100vh-12rem)]">
+              <div className="space-y-6">
+                {/* Quick Stats */}
+                <div className="grid grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Total Patients</p>
+                          <h3 className="text-2xl font-bold">{stats.patients.toLocaleString()}</h3>
+                        </div>
+                        <Users className="w-8 h-8 text-medical-500" />
+                      </div>
+                      <div className="mt-4">
+                        <Badge variant="secondary">+2% from last month</Badge>
+                      </div>
           </CardContent>
         </Card>
-        <Card className="bg-white shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Appointments</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.appointments.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">+5% from last week</p>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Today's Appointments</p>
+                          <h3 className="text-2xl font-bold">{stats.appointments.toLocaleString()}</h3>
+                        </div>
+                        <Calendar className="w-8 h-8 text-medical-500" />
+                      </div>
+                      <div className="mt-4">
+                        <Badge variant="secondary">+5% from last week</Badge>
+                      </div>
           </CardContent>
         </Card>
-        <Card className="bg-white shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹ {stats.billing.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">+15% from last month</p>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Total Doctors</p>
+                          <h3 className="text-2xl font-bold">{stats.doctors.toLocaleString()}</h3>
+                        </div>
+                        <Stethoscope className="w-8 h-8 text-medical-500" />
+                      </div>
+                      <div className="mt-4">
+                        <Badge variant="secondary">4 on leave</Badge>
+                      </div>
           </CardContent>
         </Card>
-        <Card className="bg-white shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Doctors</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.doctors}</div>
-            <p className="text-xs text-gray-500">+2 new this month</p>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Revenue</p>
+                          <h3 className="text-2xl font-bold">₹{(stats.revenue / 1000000).toFixed(1)}M</h3>
+                        </div>
+                        <DollarSign className="w-8 h-8 text-medical-500" />
+                      </div>
+                      <div className="mt-4">
+                        <Badge variant="secondary">+8% from last month</Badge>
+                      </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="dashboard" className="space-y-4" onValueChange={(val) => setActiveTab(val as any)}>
-        <TabsList className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                {/* Main Content Tabs */}
+                <Card>
+                  <CardContent className="p-6">
+                    <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
+                      <TabsList className="grid grid-cols-8 gap-2">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="patients">Patients</TabsTrigger>
@@ -266,46 +815,9 @@ const AdminDashboard = () => {
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
         
+                      {/* Tab Contents */}
         <TabsContent value="dashboard" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="col-span-1 md:col-span-2">
-              <CardHeader>
-                <CardTitle>Revenue Overview</CardTitle>
-                <CardDescription>
-                  Monthly revenue breakdown for the current year.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={revenueData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="primary"
-                        name="Total Revenue"
-                        stroke="#42A5F5"
-                        fill="#E3F2FD"
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="secondary"
-                        name="Net Revenue"
-                        stroke="#1976D2"
-                        fill="#90CAF9"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+                        <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Department Stats</CardTitle>
@@ -317,7 +829,10 @@ const AdminDashboard = () => {
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={departmentData}
+                                    data={departments.map(dept => ({
+                                      name: dept.name,
+                                      value: dept.patients
+                                    }))}
                       layout="vertical"
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
@@ -342,7 +857,7 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
+
           <Card>
             <CardHeader>
               <CardTitle>Weekly Appointments</CardTitle>
@@ -354,7 +869,16 @@ const AdminDashboard = () => {
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
-                    data={appointmentsData}
+                                    data={appointments.reduce((acc, apt) => {
+                                      const day = new Date(apt.date).toLocaleDateString('en-US', { weekday: 'short' });
+                                      const existingDay = acc.find(d => d.day === day);
+                                      if (existingDay) {
+                                        existingDay.count++;
+                                      } else {
+                                        acc.push({ day, count: 1 });
+                                      }
+                                      return acc;
+                                    }, [] as { day: string; count: number }[])}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -376,51 +900,34 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
+                        </div>
         </TabsContent>
 
-        <TabsContent value="appointments" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Appointment Management</CardTitle>
-              <CardDescription>View and manage all appointments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DataTable 
-                data={mockAppointments}
-                columns={[
-                  { key: "id", label: "ID" },
-                  { key: "patient", label: "Patient" },
-                  { key: "doctor", label: "Doctor" },
-                  { key: "department", label: "Department" },
-                  { key: "date", label: "Date" },
-                  { key: "time", label: "Time" },
-                  { key: "status", label: "Status" }
-                ]}
-                title="Appointments"
-                onView={(item) => console.log("View appointment", item)}
-                onEdit={(item) => console.log("Edit appointment", item)}
-                onDelete={(item) => console.log("Delete appointment", item)}
-              />
-            </CardContent>
-          </Card>
+                      <TabsContent value="appointments">
+                        {renderAppointmentsTab()}
         </TabsContent>
 
-        <TabsContent value="patients" className="space-y-4">
+                      <TabsContent value="patients">
           <Card>
-            <CardHeader>
+                          <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
               <CardTitle>Patient Management</CardTitle>
               <CardDescription>View and manage all patients</CardDescription>
+                            </div>
+                            <Button onClick={() => handleAddNew('patient')} className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" />
+                              Add New Patient
+                            </Button>
             </CardHeader>
             <CardContent>
               <DataTable 
-                data={mockPatients}
+                              data={patients}
                 columns={[
                   { key: "id", label: "ID" },
                   { key: "name", label: "Name" },
-                  { key: "age", label: "Age" },
-                  { key: "gender", label: "Gender" },
+                                { key: "email", label: "Email" },
                   { key: "phone", label: "Phone" },
-                  { key: "lastVisit", label: "Last Visit" },
+                                { key: "address", label: "Address" },
                   { key: "status", label: "Status" }
                 ]}
                 title="Patients"
@@ -432,15 +939,26 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="doctors" className="space-y-4">
+                      <TabsContent value="doctors">
           <Card>
-            <CardHeader>
+                          <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
               <CardTitle>Doctor Management</CardTitle>
               <CardDescription>View and manage all doctors</CardDescription>
+                            </div>
+                            <Button onClick={() => handleAddNew('doctor')} className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" />
+                              Add New Doctor
+                            </Button>
             </CardHeader>
             <CardContent>
+                            {doctorsLoading ? (
+                              <div>Loading doctors...</div>
+                            ) : doctors.length === 0 ? (
+                              <div>No doctors found. Add a new doctor to get started.</div>
+                            ) : (
               <DataTable 
-                data={mockDoctors}
+                                data={doctors}
                 columns={[
                   { key: "id", label: "ID" },
                   { key: "name", label: "Name" },
@@ -455,11 +973,12 @@ const AdminDashboard = () => {
                 onEdit={(item) => console.log("Edit doctor", item)}
                 onDelete={(item) => console.log("Delete doctor", item)}
               />
+                            )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="departments" className="space-y-4">
+                      <TabsContent value="departments">
           <Card>
             <CardHeader>
               <CardTitle>Department Management</CardTitle>
@@ -467,7 +986,7 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent>
               <DataTable 
-                data={mockDepartments}
+                              data={departments}
                 columns={[
                   { key: "id", label: "ID" },
                   { key: "name", label: "Name" },
@@ -485,15 +1004,21 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="inventory" className="space-y-4">
+                      <TabsContent value="inventory">
           <Card>
-            <CardHeader>
+                          <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
               <CardTitle>Inventory Management</CardTitle>
-              <CardDescription>View and manage hospital inventory</CardDescription>
+                              <CardDescription>View and manage inventory items</CardDescription>
+                            </div>
+                            <Button onClick={() => handleAddNew('inventory')} className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" />
+                              Add New Item
+                            </Button>
             </CardHeader>
             <CardContent>
               <DataTable 
-                data={mockInventory}
+                              data={inventory}
                 columns={[
                   { key: "id", label: "ID" },
                   { key: "item", label: "Item" },
@@ -503,73 +1028,371 @@ const AdminDashboard = () => {
                   { key: "status", label: "Status" }
                 ]}
                 title="Inventory"
-                onView={(item) => console.log("View inventory item", item)}
-                onEdit={(item) => console.log("Edit inventory item", item)}
-                onDelete={(item) => console.log("Delete inventory item", item)}
+                              onView={(item) => console.log("View inventory", item)}
+                              onEdit={(item) => console.log("Edit inventory", item)}
+                              onDelete={(item) => console.log("Delete inventory", item)}
               />
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="billing" className="space-y-4">
+                      <TabsContent value="billing">
           <Card>
             <CardHeader>
               <CardTitle>Billing Management</CardTitle>
-              <CardDescription>View and manage billing information</CardDescription>
+                            <CardDescription>View and manage billing records</CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable 
-                data={mockBilling}
+                              data={billing}
                 columns={[
-                  { key: "id", label: "Bill ID" },
+                                { key: "id", label: "ID" },
                   { key: "patient", label: "Patient" },
-                  { key: "amount", label: "Amount (₹)" },
+                                { key: "amount", label: "Amount" },
                   { key: "date", label: "Date" },
                   { key: "services", label: "Services" },
                   { key: "status", label: "Status" }
                 ]}
                 title="Billing"
-                onView={(item) => console.log("View bill", item)}
-                onEdit={(item) => console.log("Edit bill", item)}
-                onDelete={(item) => console.log("Delete bill", item)}
+                              onView={(item) => console.log("View billing", item)}
+                              onEdit={(item) => console.log("Edit billing", item)}
+                              onDelete={(item) => console.log("Delete billing", item)}
               />
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reports</CardTitle>
-              <CardDescription>View and generate various reports</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">Patient Statistics</h3>
-                  <p className="text-sm text-gray-500 mb-4">Patient demographics and visit analysis</p>
-                  <Button size="sm">Generate Report</Button>
-                </Card>
-                <Card className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">Financial Summary</h3>
-                  <p className="text-sm text-gray-500 mb-4">Revenue and expense breakdown</p>
-                  <Button size="sm">Generate Report</Button>
-                </Card>
-                <Card className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">Department Performance</h3>
-                  <p className="text-sm text-gray-500 mb-4">Efficiency and utilization metrics</p>
-                  <Button size="sm">Generate Report</Button>
-                </Card>
-                <Card className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">Inventory Status</h3>
-                  <p className="text-sm text-gray-500 mb-4">Current stock and usage patterns</p>
-                  <Button size="sm">Generate Report</Button>
-                </Card>
-              </div>
+                    </Tabs>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+      </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the appointment
+              for {selectedAppointment?.patient_name} on {selectedAppointment?.date}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteAppointment}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="date" className="text-right">
+                Date
+              </Label>
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleFormChange}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="time" className="text-right">
+                Time
+              </Label>
+              <Input
+                id="time"
+                name="time"
+                type="time"
+                value={formData.time}
+                onChange={handleFormChange}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="doctor" className="text-right">
+                Doctor
+              </Label>
+              <Select
+                value={formData.doctor}
+                onValueChange={(value) => handleSelectChange('doctor', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {appointmentDoctors.map((doctor) => (
+                    <SelectItem key={doctor.id} value={doctor.name}>
+                      {doctor.name} - {doctor.specialization}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="department" className="text-right">
+                Department
+              </Label>
+              <Select
+                value={formData.department}
+                onValueChange={(value) => handleSelectChange('department', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cardiology">Cardiology</SelectItem>
+                  <SelectItem value="Neurology">Neurology</SelectItem>
+                  <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+                  <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                  <SelectItem value="Dermatology">Dermatology</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Status
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => handleSelectChange('status', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Scheduled">Scheduled</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                  <SelectItem value="No Show">No Show</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">
+                Notes
+              </Label>
+              <Input
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleFormChange}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add New Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              Add New {addType ? addType.charAt(0).toUpperCase() + addType.slice(1) : ''}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {addType === 'patient' && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="first_name" className="text-right">First Name</Label>
+                  <Input
+                    id="first_name"
+                    name="first_name"
+                    value={addFormData.first_name || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="last_name" className="text-right">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    name="last_name"
+                    value={addFormData.last_name || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={addFormData.email || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">Phone</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    value={addFormData.phone || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="date_of_birth" className="text-right">Date of Birth</Label>
+                  <Input
+                    id="date_of_birth"
+                    name="date_of_birth"
+                    type="date"
+                    value={addFormData.date_of_birth || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+              </>
+            )}
+
+            {addType === 'doctor' && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={addFormData.name || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="specialization" className="text-right">
+                    Specialization <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="specialization"
+                    name="specialization"
+                    value={addFormData.specialization || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="experience" className="text-right">
+                    Experience
+                  </Label>
+                  <Input
+                    id="experience"
+                    name="experience"
+                    value={addFormData.experience || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                    placeholder="e.g., 5 years"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={addFormData.email || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                    placeholder="doctor@example.com"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">
+                    Phone
+                  </Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    value={addFormData.phone || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                    placeholder="+91 1234567890"
+                  />
+                </div>
+              </>
+            )}
+
+            {addType === 'inventory' && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="item" className="text-right">Item Name</Label>
+                  <Input
+                    id="item"
+                    name="item"
+                    value={addFormData.item || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="category" className="text-right">Category</Label>
+                  <Input
+                    id="category"
+                    name="category"
+                    value={addFormData.category || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="quantity" className="text-right">Quantity</Label>
+                  <Input
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    value={addFormData.quantity || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="unit" className="text-right">Unit</Label>
+                  <Input
+                    id="unit"
+                    name="unit"
+                    value={addFormData.unit || ''}
+                    onChange={handleAddFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddSave}>Add {addType}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
