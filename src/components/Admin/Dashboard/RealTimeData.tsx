@@ -31,7 +31,10 @@ export const useRealTimeData = () => {
         .from('patients')
         .select('*', { count: 'exact', head: true });
 
-      if (patientsError) throw patientsError;
+      if (patientsError) {
+        console.error('Error fetching patients count:', patientsError);
+        throw patientsError;
+      }
 
       // Fetch appointments count for today
       const today = new Date().toISOString().split('T')[0];
@@ -40,14 +43,20 @@ export const useRealTimeData = () => {
         .select('*', { count: 'exact', head: true })
         .eq('date', today);
 
-      if (appointmentsError) throw appointmentsError;
+      if (appointmentsError) {
+        console.error('Error fetching appointments count:', appointmentsError);
+        throw appointmentsError;
+      }
 
       // Fetch doctors count
       const { count: doctorsCount, error: doctorsError } = await supabase
         .from('doctors')
         .select('*', { count: 'exact', head: true });
 
-      if (doctorsError) throw doctorsError;
+      if (doctorsError) {
+        console.error('Error fetching doctors count:', doctorsError);
+        throw doctorsError;
+      }
 
       // Fetch total revenue for the current month
       const firstDayOfMonth = new Date();
@@ -60,7 +69,10 @@ export const useRealTimeData = () => {
         .gte('created_at', firstDayOfMonth.toISOString())
         .eq('status', 'Paid');
 
-      if (billingError) throw billingError;
+      if (billingError) {
+        console.error('Error fetching billing data:', billingError);
+        throw billingError;
+      }
 
       const totalRevenue = billingData?.reduce((sum, bill) => sum + (bill.amount || 0), 0) || 0;
 

@@ -2,10 +2,15 @@ import { useLocation, Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { toast } from 'sonner';
 
 const ConfirmationPage = () => {
   const location = useLocation();
   const appointmentData = location.state;
+  const cardRef = useRef<HTMLDivElement>(null);
   
   // If user directly navigates to confirmation page without data, redirect to appointment page
   if (!appointmentData) {
@@ -24,9 +29,72 @@ const ConfirmationPage = () => {
     refNumber
   } = appointmentData;
 
+  const downloadPDF = async () => {
+    if (!cardRef.current) return;
+
+    try {
+      // Show loading state
+      toast.loading('Generating PDF...');
+
+      // Create a clone of the card to avoid any styling issues
+      const cardClone = cardRef.current.cloneNode(true) as HTMLElement;
+      document.body.appendChild(cardClone);
+      cardClone.style.position = 'absolute';
+      cardClone.style.left = '-9999px';
+      cardClone.style.width = '595px'; // A4 width in pixels at 72 DPI
+      cardClone.style.padding = '40px'; // Add padding for better margins
+
+      // Generate the PDF
+      const canvas = await html2canvas(cardClone, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 595, // A4 width
+        windowHeight: cardClone.scrollHeight,
+      });
+
+      // Remove the clone
+      document.body.removeChild(cardClone);
+
+      // Create PDF in A4 format
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt', // Use points for better precision
+        format: 'a4',
+      });
+
+      // Calculate scaling to fit A4
+      const imgWidth = pdf.internal.pageSize.getWidth();
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Add the image to PDF
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        0,
+        0,
+        imgWidth,
+        imgHeight
+      );
+
+      // Save the PDF
+      pdf.save(`appointment-confirmation-${refNumber}.pdf`);
+      
+      // Show success message
+      toast.dismiss();
+      toast.success('PDF downloaded successfully');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.dismiss();
+      toast.error('Failed to download PDF. Please try again.');
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <motion.div 
+        ref={cardRef}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
@@ -133,7 +201,10 @@ const ConfirmationPage = () => {
               </Button>
             </Link>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-medical-600 hover:bg-medical-700 w-full sm:w-auto">
+              <Button 
+                onClick={downloadPDF}
+                className="bg-medical-600 hover:bg-medical-700 w-full sm:w-auto"
+              >
                 Download Confirmation
               </Button>
               <Button variant="outline" className="border-medical-600 text-medical-700 w-full sm:w-auto">
