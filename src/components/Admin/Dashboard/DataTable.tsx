@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 interface Column {
   key: string;
   label: string;
+  render?: (item: any) => React.ReactNode;
 }
 
 interface DataTableProps {
@@ -100,10 +101,10 @@ const DataTable = ({ data, columns, title, onView, onEdit, onDelete }: DataTable
               <TableRow key={item.id || index}>
                 {columns.map((column) => (
                   <TableCell key={column.key}>
-                    {formatValue(item[column.key], column.key)}
+                    {column.render ? column.render(item) : formatValue(item[column.key], column.key)}
                   </TableCell>
                 ))}
-                <TableCell className="text-right">
+                <TableCell>
                   <div className="flex justify-end gap-2">
                     {onView && (
                       <Button

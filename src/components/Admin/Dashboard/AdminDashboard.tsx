@@ -78,6 +78,7 @@ import { testDatabaseConnection } from '@/integrations/supabase/client';
 export interface Column {
   key: string;
   label: string;
+  render?: (item: any) => React.ReactNode;
 }
 
 interface Appointment {
@@ -108,6 +109,7 @@ interface DashboardStats {
 }
 
 const appointmentColumns: Column[] = [
+  { key: 'reference_number', label: 'Reference' },
   { key: 'patient_name', label: 'Patient' },
   { key: 'doctor_name', label: 'Doctor' },
   { key: 'department_name', label: 'Department' },
@@ -119,6 +121,7 @@ const appointmentColumns: Column[] = [
 // Add type for database response
 interface AppointmentResponse {
   id: string;
+  reference_number: string;
   patient_id: string;
   doctor_id: string;
   department_id: string;
@@ -126,14 +129,17 @@ interface AppointmentResponse {
   time: string;
   status: string;
   notes: string | null;
-  patients: {
+  patient: {
     first_name: string;
     last_name: string;
+    email: string;
+    phone: string;
   } | null;
-  doctors: {
+  doctor: {
     name: string;
+    specialization: string;
   } | null;
-  departments: {
+  department: {
     name: string;
   } | null;
 }
@@ -149,6 +155,28 @@ interface AppointmentInsert {
   notes?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+// Update the Patient interface to match the database schema
+interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  appointments?: {
+    id: string;
+    date: string;
+    time: string;
+    status: string;
+    doctor?: {
+      name: string;
+      specialization: string;
+    };
+    department?: {
+      name: string;
+    };
+  }[];
 }
 
 const AdminDashboard = () => {
@@ -226,56 +254,46 @@ const AdminDashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      setLoadingAppointments(true);
       const { data, error } = await supabase
         .from('appointments')
         .select(`
-          id,
-          patient_id,
-          doctor_id,
-          department_id,
-          date,
-          time,
-          status,
-          notes,
-          patients:patient_id(first_name, last_name),
-          doctors:doctor_id(name),
-          departments:department_id(name)
+          *,
+          patient:patients (
+            first_name,
+            last_name,
+            email,
+            phone
+          ),
+          doctor:doctors (
+            name,
+            specialization
+          ),
+          department:departments (
+            name
+          )
         `)
-        .order('date', { ascending: true });
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching appointments:', error);
-        toast.error(`Failed to fetch appointments: ${error.message}`);
-        throw error;
-      }
+      if (error) throw error;
 
-      if (!data) {
-        setAppointments([]);
-        return;
-      }
-
-      const formattedAppointments = (data as unknown as AppointmentResponse[]).map(appointment => ({
-        id: appointment.id,
-        patient_id: appointment.patient_id,
-        doctor_id: appointment.doctor_id,
-        department_id: appointment.department_id,
+      // Transform the data to include formatted fields
+      const formattedAppointments = data.map(appointment => ({
+        ...appointment,
+        patient_name: appointment.patient ? `${appointment.patient.first_name} ${appointment.patient.last_name}` : 'N/A',
+        doctor_name: appointment.doctor ? `${appointment.doctor.name} (${appointment.doctor.specialization})` : 'N/A',
+        department_name: appointment.department ? appointment.department.name : 'N/A',
         date: new Date(appointment.date).toLocaleDateString(),
-        time: appointment.time,
-        status: appointment.status,
-        notes: appointment.notes,
-        patient_name: `${appointment.patients?.first_name || ''} ${appointment.patients?.last_name || ''}`.trim(),
-        doctor_name: appointment.doctors?.name || '',
-        department_name: appointment.departments?.name || ''
+        time: appointment.time
       }));
 
       setAppointments(formattedAppointments);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching appointments:', error);
-      toast.error(error.message || 'Failed to fetch appointments');
-      setAppointments([]);
-    } finally {
-      setLoadingAppointments(false);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch appointments',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -351,20 +369,129 @@ const AdminDashboard = () => {
     }
   };
 
-  // Mock data
-  const patients = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "123-456-7890",
-      address: "123 Main St",
-      status: "Active",
-      lastVisit: "2024-03-15"
-    },
-    // ... existing code ...
-  ];
+  // Update the patients state type and add loading state
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patientsLoading, setPatientsLoading] = useState(false);
 
+  // Update the fetchPatients function to match the schema
+  const fetchPatients = async () => {
+    setPatientsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select(`
+          id,
+          first_name,
+          last_name,
+          email,
+          phone,
+          appointments:appointments (
+            id,
+            date,
+            time,
+            status,
+            doctor:doctors (
+              name,
+              specialization
+            ),
+            department:departments (
+              name
+            )
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching patients:', error);
+        toast.error('Failed to fetch patients');
+        return;
+      }
+
+      setPatients(data || []);
+    } catch (error) {
+      console.error('Error in fetchPatients:', error);
+      toast.error('An error occurred while fetching patients');
+    } finally {
+      setPatientsLoading(false);
+    }
+  };
+
+  // Add useEffect to fetch patients when the patients tab is active
+  useEffect(() => {
+    if (activeTab === 'patients') {
+      fetchPatients();
+    }
+  }, [activeTab]);
+
+  // Update the patients tab content
+  const renderPatientsTab = () => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Patient Management</CardTitle>
+          <CardDescription>View and manage all patients</CardDescription>
+        </div>
+        <Button onClick={() => handleAddNew('patient')} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add New Patient
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {patientsLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : patients.length === 0 ? (
+          <div className="text-center p-4 text-gray-500">
+            No patients found. Add a new patient to get started.
+          </div>
+        ) : (
+          <DataTable 
+            data={patients}
+            columns={[
+              { key: "id", label: "ID" },
+              { 
+                key: "name", 
+                label: "Name", 
+                render: (patient: Patient) => (
+                  <span>{`${patient.first_name || ''} ${patient.last_name || ''}`.trim() || 'N/A'}</span>
+                )
+              },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { 
+                key: "appointments", 
+                label: "Appointments",
+                render: (patient: Patient) => {
+                  if (!patient.appointments || patient.appointments.length === 0) {
+                    return <span>No appointments</span>;
+                  }
+                  return (
+                    <div className="space-y-1">
+                      {patient.appointments.map((appointment) => (
+                        <div key={appointment.id} className="text-sm">
+                          <div>{new Date(appointment.date).toLocaleDateString()} {appointment.time}</div>
+                          <div className="text-gray-500">
+                            {appointment.doctor?.name || 'N/A'} - {appointment.department?.name || 'N/A'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+              }
+            ]}
+            title="Patients"
+            onView={(item) => console.log("View patient", item)}
+            onEdit={(item) => console.log("Edit patient", item)}
+            onDelete={(item) => console.log("Delete patient", item)}
+          />
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  // Mock data
   const departments = [
     {
       id: 1,
@@ -647,18 +774,9 @@ const AdminDashboard = () => {
         data={appointments}
         columns={appointmentColumns}
         title="Appointments"
-        onView={(row) => {
-          // Handle view appointment
-          console.log('View appointment:', row);
-        }}
-        onEdit={(row) => {
-          // Handle edit appointment
-          console.log('Edit appointment:', row);
-        }}
-        onDelete={(row) => {
-          // Handle delete appointment
-          console.log('Delete appointment:', row);
-        }}
+        onView={(item) => handleViewAppointment(item)}
+        onEdit={(item) => handleEditAppointment(item)}
+        onDelete={(item) => handleDeleteAppointment(item)}
       />
     </div>
   );
@@ -668,6 +786,8 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'appointments':
         return renderAppointmentsTab();
+      case 'patients':
+        return renderPatientsTab();
       // ... other cases ...
     }
   };
@@ -865,35 +985,7 @@ const AdminDashboard = () => {
                       </TabsContent>
 
                       <TabsContent value="patients">
-                        <Card>
-                          <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                              <CardTitle>Patient Management</CardTitle>
-                              <CardDescription>View and manage all patients</CardDescription>
-                            </div>
-                            <Button onClick={() => handleAddNew('patient')} className="flex items-center gap-2">
-                              <Plus className="h-4 w-4" />
-                              Add New Patient
-                            </Button>
-                          </CardHeader>
-                          <CardContent>
-                            <DataTable 
-                              data={patients}
-                              columns={[
-                                { key: "id", label: "ID" },
-                                { key: "name", label: "Name" },
-                                { key: "email", label: "Email" },
-                                { key: "phone", label: "Phone" },
-                                { key: "address", label: "Address" },
-                                { key: "status", label: "Status" }
-                              ]}
-                              title="Patients"
-                              onView={(item) => console.log("View patient", item)}
-                              onEdit={(item) => console.log("Edit patient", item)}
-                              onDelete={(item) => console.log("Delete patient", item)}
-                            />
-                          </CardContent>
-                        </Card>
+                        {renderPatientsTab()}
                       </TabsContent>
 
                       <TabsContent value="doctors">

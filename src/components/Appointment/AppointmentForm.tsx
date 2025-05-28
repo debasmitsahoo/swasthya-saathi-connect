@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppointmentConfirmation } from './AppointmentConfirmation';
 
 const appointmentSchema = z.object({
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
@@ -80,6 +81,8 @@ const AppointmentForm = () => {
   const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [appointmentData, setAppointmentData] = useState<any>(null);
   
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
@@ -94,54 +97,53 @@ const AppointmentForm = () => {
 
   const onSubmit = async (values: AppointmentFormValues) => {
     setIsSubmitting(true);
+    setError(null);
     
     try {
-      // Generate a reference number
-      const refNumber = "SS-" + Math.floor(100000 + Math.random() * 900000);
-
-      // Get department and doctor names for better display
-      const departmentName = departments.find(d => d.value === values.department)?.label;
-      const doctorName = doctorsByDepartment[values.department]?.find(d => d.value === values.doctor)?.label;
-
-      if (!departmentName || !doctorName) {
-        throw new Error("Invalid department or doctor selection");
-      }
-
-      console.log("Creating patient record with values:", {
-        first_name: values.fullName,
-        last_name: '',
-        email: values.email,
-        phone: values.phone,
-        gender: values.gender,
-        status: 'Active'
-      });
-
-      // First, create or get the patient record
-      const { data: patientData, error: patientError } = await supabase
+      // Check if patient already exists
+      const { data: existingPatient, error: patientCheckError } = await supabase
         .from('patients')
-        .upsert({
-          first_name: values.fullName,
-          last_name: '',
-          email: values.email,
-          phone: values.phone,
-          gender: values.gender,
-          status: 'Active',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
+        .select('*')
+        .eq('email', values.email)
         .single();
 
-      if (patientError) {
-        console.error("Error creating patient:", patientError);
-        throw new Error(`Failed to create patient record: ${patientError.message}`);
+      if (patientCheckError && patientCheckError.code !== 'PGRST116') {
+        console.error("Error checking patient:", patientCheckError);
+        throw new Error(`Failed to check patient: ${patientCheckError.message}`);
       }
 
-      if (!patientData) {
-        throw new Error("Failed to create patient record: No data returned");
+      let patientData;
+      if (existingPatient) {
+        patientData = existingPatient;
+        console.log("Using existing patient:", patientData);
+      } else {
+        // Create new patient record
+        const { data: newPatient, error: patientError } = await supabase
+          .from('patients')
+          .insert({
+            first_name: values.fullName,
+            last_name: '',
+            email: values.email,
+            phone: values.phone,
+            gender: values.gender,
+            status: 'Active',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (patientError) {
+          console.error("Error creating patient:", patientError);
+          throw new Error(`Failed to create patient: ${patientError.message}`);
+        }
+
+        patientData = newPatient;
+        console.log("Patient record created:", patientData);
       }
 
-      console.log("Patient record created:", patientData);
+      // Generate reference number
+      const referenceNumber = `APT-${Date.now().toString().slice(-6)}`;
 
       // Create the appointment record with the correct types
       const appointmentRecord = {
@@ -152,15 +154,52 @@ const AppointmentForm = () => {
         time: values.time,
         status: 'Scheduled',
         notes: values.message,
-        created_at: new Date().toISOString()
+        reference_number: referenceNumber,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       console.log("Creating appointment with record:", appointmentRecord);
+      console.log("Department ID being used:", values.department);
+
+      // Verify department exists
+      const { data: departmentData, error: departmentError } = await supabase
+        .from('departments')
+        .select('*')
+        .eq('id', values.department)
+        .single();
+
+      if (departmentError) {
+        console.error("Error verifying department:", departmentError);
+        throw new Error(`Department verification failed: ${departmentError.message}`);
+      }
+
+      if (!departmentData) {
+        console.error("Department not found:", values.department);
+        throw new Error(`Department with ID ${values.department} not found in database`);
+      }
+
+      console.log("Department found:", departmentData);
 
       const { data: appointmentData, error: appointmentError } = await supabase
         .from('appointments')
         .insert(appointmentRecord)
-        .select()
+        .select(`
+          *,
+          patient:patients (
+            first_name,
+            last_name,
+            email,
+            phone
+          ),
+          doctor:doctors (
+            name,
+            specialization
+          ),
+          department:departments (
+            name
+          )
+        `)
         .single();
 
       if (appointmentError) {
@@ -168,34 +207,19 @@ const AppointmentForm = () => {
         throw new Error(`Failed to create appointment: ${appointmentError.message}`);
       }
 
-      if (!appointmentData) {
-        throw new Error("Failed to create appointment record: No data returned");
-      }
-
       console.log("Appointment created successfully:", appointmentData);
-
-      // Navigate to confirmation page with the appointment details
-      navigate("/appointment/confirmation", { 
-        state: { 
-          firstName: values.fullName,
-          lastName: '',
-          email: values.email,
-          phone: values.phone,
-          date: format(values.date, 'MMMM d, yyyy'),
-          time: values.time,
-          departmentName,
-          doctorName,
-          refNumber,
-          notes: values.message
-        } 
-      });
-    } catch (error) {
-      console.error("Error processing appointment:", error);
-      toast.error(error instanceof Error ? error.message : "There was a problem booking your appointment. Please try again.");
+      setAppointmentData(appointmentData);
+    } catch (err) {
+      console.error("Error in appointment creation:", err);
+      setError(err instanceof Error ? err.message : 'An error occurred while creating the appointment');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (appointmentData) {
+    return <AppointmentConfirmation appointment={appointmentData} />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
