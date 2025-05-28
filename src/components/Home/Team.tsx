@@ -54,7 +54,7 @@ const Team = () => {
     },
     {
       name: "Abhinash Dalbehera",
-      rollNo: "22040006291406",
+      rollNo: "22040006291403",
       image: "/abhinash.svg"
     },
     {
