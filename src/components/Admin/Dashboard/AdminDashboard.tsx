@@ -674,12 +674,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-        <Header />
+      <Header />
       
       <div className="container mx-auto px-4 py-6">
         {/* Search and Actions Bar */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="relative w-96">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search..."
@@ -688,26 +688,26 @@ const AdminDashboard = () => {
               className="pl-10"
             />
           </div>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="flex-1 sm:flex-none">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Bell className="w-4 h-4 mr-2" />
               Notifications
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Settings className="w-4 h-4 mr-2" />
               Settings
-          </Button>
+            </Button>
+          </div>
         </div>
-      </div>
       
         {/* Main Content */}
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar */}
-          <div className="col-span-2">
+          <div className="lg:col-span-3 xl:col-span-2">
             <Card>
               <CardContent className="p-4">
                 <nav className="space-y-2">
@@ -734,14 +734,14 @@ const AdminDashboard = () => {
                 </nav>
               </CardContent>
             </Card>
-            </div>
+          </div>
 
           {/* Main Content Area */}
-          <div className="col-span-10">
+          <div className="lg:col-span-9 xl:col-span-10">
             <ScrollArea className="h-[calc(100vh-12rem)]">
               <div className="space-y-6">
                 {/* Quick Stats */}
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -754,8 +754,8 @@ const AdminDashboard = () => {
                       <div className="mt-4">
                         <Badge variant="secondary">+2% from last month</Badge>
                       </div>
-          </CardContent>
-        </Card>
+                    </CardContent>
+                  </Card>
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -768,8 +768,8 @@ const AdminDashboard = () => {
                       <div className="mt-4">
                         <Badge variant="secondary">+5% from last week</Badge>
                       </div>
-          </CardContent>
-        </Card>
+                    </CardContent>
+                  </Card>
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -782,8 +782,8 @@ const AdminDashboard = () => {
                       <div className="mt-4">
                         <Badge variant="secondary">4 on leave</Badge>
                       </div>
-          </CardContent>
-        </Card>
+                    </CardContent>
+                  </Card>
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
@@ -796,274 +796,231 @@ const AdminDashboard = () => {
                       <div className="mt-4">
                         <Badge variant="secondary">+8% from last month</Badge>
                       </div>
-          </CardContent>
-        </Card>
-      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Main Content Tabs */}
                 <Card>
                   <CardContent className="p-6">
                     <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
-                      <TabsList className="grid grid-cols-8 gap-2">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="appointments">Appointments</TabsTrigger>
-          <TabsTrigger value="patients">Patients</TabsTrigger>
-          <TabsTrigger value="doctors">Doctors</TabsTrigger>
-          <TabsTrigger value="departments">Departments</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-        </TabsList>
-        
+                      <TabsList className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+                        <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                        <TabsTrigger value="appointments">Appointments</TabsTrigger>
+                        <TabsTrigger value="patients">Patients</TabsTrigger>
+                        <TabsTrigger value="doctors">Doctors</TabsTrigger>
+                        <TabsTrigger value="departments">Departments</TabsTrigger>
+                        <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                        <TabsTrigger value="billing">Billing</TabsTrigger>
+                        <TabsTrigger value="reports">Reports</TabsTrigger>
+                      </TabsList>
+                      
                       {/* Tab Contents */}
-        <TabsContent value="dashboard" className="space-y-4">
+                      <TabsContent value="dashboard">
                         <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Department Stats</CardTitle>
-                <CardDescription>
-                  Patient distribution by department
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Department Stats</CardTitle>
+                              <CardDescription>
+                                Patient distribution by department
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <BarChart
                                     data={departments.map(dept => ({
                                       name: dept.name,
                                       value: dept.patients
                                     }))}
-                      layout="vertical"
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        tickLine={false}
-                        width={100}
-                      />
-                      <Tooltip />
-                      <Legend />
-                      <Bar
-                        dataKey="value"
-                        name="Patients"
-                        fill="#1E88E5"
-                        radius={[0, 4, 4, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Appointments</CardTitle>
-              <CardDescription>
-                Number of appointments for the current week
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                                    data={appointments.reduce((acc, apt) => {
-                                      const day = new Date(apt.date).toLocaleDateString('en-US', { weekday: 'short' });
-                                      const existingDay = acc.find(d => d.day === day);
-                                      if (existingDay) {
-                                        existingDay.count++;
-                                      } else {
-                                        acc.push({ day, count: 1 });
-                                      }
-                                      return acc;
-                                    }, [] as { day: string; count: number }[])}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      name="Appointments"
-                      stroke="#0D47A1"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 8 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+                                    layout="vertical"
+                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                  >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis type="number" />
+                                    <YAxis
+                                      dataKey="name"
+                                      type="category"
+                                      tickLine={false}
+                                      width={100}
+                                    />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar
+                                      dataKey="value"
+                                      name="Patients"
+                                      fill="#1E88E5"
+                                      radius={[0, 4, 4, 0]}
+                                    />
+                                  </BarChart>
+                                </ResponsiveContainer>
+                              </div>
+                            </CardContent>
+                          </Card>
                         </div>
-        </TabsContent>
+                      </TabsContent>
 
                       <TabsContent value="appointments">
                         {renderAppointmentsTab()}
-        </TabsContent>
+                      </TabsContent>
 
                       <TabsContent value="patients">
-          <Card>
+                        <Card>
                           <CardHeader className="flex flex-row items-center justify-between">
                             <div>
-              <CardTitle>Patient Management</CardTitle>
-              <CardDescription>View and manage all patients</CardDescription>
+                              <CardTitle>Patient Management</CardTitle>
+                              <CardDescription>View and manage all patients</CardDescription>
                             </div>
                             <Button onClick={() => handleAddNew('patient')} className="flex items-center gap-2">
                               <Plus className="h-4 w-4" />
                               Add New Patient
                             </Button>
-            </CardHeader>
-            <CardContent>
-              <DataTable 
+                          </CardHeader>
+                          <CardContent>
+                            <DataTable 
                               data={patients}
-                columns={[
-                  { key: "id", label: "ID" },
-                  { key: "name", label: "Name" },
+                              columns={[
+                                { key: "id", label: "ID" },
+                                { key: "name", label: "Name" },
                                 { key: "email", label: "Email" },
-                  { key: "phone", label: "Phone" },
+                                { key: "phone", label: "Phone" },
                                 { key: "address", label: "Address" },
-                  { key: "status", label: "Status" }
-                ]}
-                title="Patients"
-                onView={(item) => console.log("View patient", item)}
-                onEdit={(item) => console.log("Edit patient", item)}
-                onDelete={(item) => console.log("Delete patient", item)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+                                { key: "status", label: "Status" }
+                              ]}
+                              title="Patients"
+                              onView={(item) => console.log("View patient", item)}
+                              onEdit={(item) => console.log("Edit patient", item)}
+                              onDelete={(item) => console.log("Delete patient", item)}
+                            />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
 
                       <TabsContent value="doctors">
-          <Card>
+                        <Card>
                           <CardHeader className="flex flex-row items-center justify-between">
                             <div>
-              <CardTitle>Doctor Management</CardTitle>
-              <CardDescription>View and manage all doctors</CardDescription>
+                              <CardTitle>Doctor Management</CardTitle>
+                              <CardDescription>View and manage all doctors</CardDescription>
                             </div>
                             <Button onClick={() => handleAddNew('doctor')} className="flex items-center gap-2">
                               <Plus className="h-4 w-4" />
                               Add New Doctor
                             </Button>
-            </CardHeader>
-            <CardContent>
+                          </CardHeader>
+                          <CardContent>
                             {doctorsLoading ? (
                               <div>Loading doctors...</div>
                             ) : doctors.length === 0 ? (
                               <div>No doctors found. Add a new doctor to get started.</div>
                             ) : (
-              <DataTable 
+                              <DataTable 
                                 data={doctors}
-                columns={[
-                  { key: "id", label: "ID" },
-                  { key: "name", label: "Name" },
-                  { key: "specialization", label: "Specialization" },
-                  { key: "experience", label: "Experience" },
-                  { key: "phone", label: "Phone" },
-                  { key: "email", label: "Email" },
-                  { key: "status", label: "Status" }
-                ]}
-                title="Doctors"
-                onView={(item) => console.log("View doctor", item)}
-                onEdit={(item) => console.log("Edit doctor", item)}
-                onDelete={(item) => console.log("Delete doctor", item)}
-              />
+                                columns={[
+                                  { key: "id", label: "ID" },
+                                  { key: "name", label: "Name" },
+                                  { key: "specialization", label: "Specialization" },
+                                  { key: "experience", label: "Experience" },
+                                  { key: "phone", label: "Phone" },
+                                  { key: "email", label: "Email" },
+                                  { key: "status", label: "Status" }
+                                ]}
+                                title="Doctors"
+                                onView={(item) => console.log("View doctor", item)}
+                                onEdit={(item) => console.log("Edit doctor", item)}
+                                onDelete={(item) => console.log("Delete doctor", item)}
+                              />
                             )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
 
                       <TabsContent value="departments">
-          <Card>
-            <CardHeader>
-              <CardTitle>Department Management</CardTitle>
-              <CardDescription>View and manage all departments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DataTable 
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Department Management</CardTitle>
+                            <CardDescription>View and manage all departments</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <DataTable 
                               data={departments}
-                columns={[
-                  { key: "id", label: "ID" },
-                  { key: "name", label: "Name" },
-                  { key: "head", label: "Head Doctor" },
-                  { key: "doctors", label: "No. of Doctors" },
-                  { key: "staff", label: "Staff" },
-                  { key: "patients", label: "Patients" }
-                ]}
-                title="Departments"
-                onView={(item) => console.log("View department", item)}
-                onEdit={(item) => console.log("Edit department", item)}
-                onDelete={(item) => console.log("Delete department", item)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+                              columns={[
+                                { key: "id", label: "ID" },
+                                { key: "name", label: "Name" },
+                                { key: "head", label: "Head Doctor" },
+                                { key: "doctors", label: "No. of Doctors" },
+                                { key: "staff", label: "Staff" },
+                                { key: "patients", label: "Patients" }
+                              ]}
+                              title="Departments"
+                              onView={(item) => console.log("View department", item)}
+                              onEdit={(item) => console.log("Edit department", item)}
+                              onDelete={(item) => console.log("Delete department", item)}
+                            />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
 
                       <TabsContent value="inventory">
-          <Card>
+                        <Card>
                           <CardHeader className="flex flex-row items-center justify-between">
                             <div>
-              <CardTitle>Inventory Management</CardTitle>
+                              <CardTitle>Inventory Management</CardTitle>
                               <CardDescription>View and manage inventory items</CardDescription>
                             </div>
                             <Button onClick={() => handleAddNew('inventory')} className="flex items-center gap-2">
                               <Plus className="h-4 w-4" />
                               Add New Item
                             </Button>
-            </CardHeader>
-            <CardContent>
-              <DataTable 
+                          </CardHeader>
+                          <CardContent>
+                            <DataTable 
                               data={inventory}
-                columns={[
-                  { key: "id", label: "ID" },
-                  { key: "item", label: "Item" },
-                  { key: "category", label: "Category" },
-                  { key: "quantity", label: "Quantity" },
-                  { key: "unit", label: "Unit" },
-                  { key: "status", label: "Status" }
-                ]}
-                title="Inventory"
+                              columns={[
+                                { key: "id", label: "ID" },
+                                { key: "item", label: "Item" },
+                                { key: "category", label: "Category" },
+                                { key: "quantity", label: "Quantity" },
+                                { key: "unit", label: "Unit" },
+                                { key: "status", label: "Status" }
+                              ]}
+                              title="Inventory"
                               onView={(item) => console.log("View inventory", item)}
                               onEdit={(item) => console.log("Edit inventory", item)}
                               onDelete={(item) => console.log("Delete inventory", item)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+                            />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
 
                       <TabsContent value="billing">
-          <Card>
-            <CardHeader>
-              <CardTitle>Billing Management</CardTitle>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Billing Management</CardTitle>
                             <CardDescription>View and manage billing records</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DataTable 
+                          </CardHeader>
+                          <CardContent>
+                            <DataTable 
                               data={billing}
-                columns={[
+                              columns={[
                                 { key: "id", label: "ID" },
-                  { key: "patient", label: "Patient" },
+                                { key: "patient", label: "Patient" },
                                 { key: "amount", label: "Amount" },
-                  { key: "date", label: "Date" },
-                  { key: "services", label: "Services" },
-                  { key: "status", label: "Status" }
-                ]}
-                title="Billing"
+                                { key: "date", label: "Date" },
+                                { key: "services", label: "Services" },
+                                { key: "status", label: "Status" }
+                              ]}
+                              title="Billing"
                               onView={(item) => console.log("View billing", item)}
                               onEdit={(item) => console.log("Edit billing", item)}
                               onDelete={(item) => console.log("Delete billing", item)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+                            />
+                          </CardContent>
+                        </Card>
+                      </TabsContent>
                     </Tabs>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
               </div>
             </ScrollArea>
           </div>

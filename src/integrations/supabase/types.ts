@@ -13,8 +13,8 @@ export type Database = {
         Row: {
           created_at: string
           date: string
-          department: string
-          doctor: string
+          department_id: string
+          doctor_id: string
           id: string
           notes: string | null
           patient_id: string
@@ -24,8 +24,8 @@ export type Database = {
         Insert: {
           created_at?: string
           date: string
-          department: string
-          doctor: string
+          department_id: string
+          doctor_id: string
           id?: string
           notes?: string | null
           patient_id: string
@@ -35,8 +35,8 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string
-          department?: string
-          doctor?: string
+          department_id?: string
+          doctor_id?: string
           id?: string
           notes?: string | null
           patient_id?: string
@@ -51,6 +51,20 @@ export type Database = {
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          }
         ]
       }
       billing: {

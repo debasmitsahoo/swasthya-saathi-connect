@@ -23,8 +23,8 @@ const appointmentSchema = z.object({
   gender: z.string({ required_error: "Please select your gender" }),
   date: z.date({ required_error: "Please select a date" }),
   time: z.string({ required_error: "Please select a time" }),
-  department: z.string({ required_error: "Please select a department" }),
-  doctor: z.string({ required_error: "Please select a doctor" }),
+  department: z.string().uuid({ message: "Please select a department" }),
+  doctor: z.string().uuid({ message: "Please select a doctor" }),
   message: z.string().optional(),
 });
 
@@ -36,43 +36,43 @@ const availableTimes = [
 ];
 
 const departments = [
-  { value: "general", label: "General Medicine" },
-  { value: "cardiology", label: "Cardiology" },
-  { value: "orthopedics", label: "Orthopedics" },
-  { value: "neurology", label: "Neurology" },
-  { value: "dermatology", label: "Dermatology" },
-  { value: "gynecology", label: "Gynecology" },
-  { value: "pediatrics", label: "Pediatrics" },
+  { value: "550e8400-e29b-41d4-a716-446655440000", label: "General Medicine" },
+  { value: "550e8400-e29b-41d4-a716-446655440001", label: "Cardiology" },
+  { value: "550e8400-e29b-41d4-a716-446655440002", label: "Orthopedics" },
+  { value: "550e8400-e29b-41d4-a716-446655440003", label: "Neurology" },
+  { value: "550e8400-e29b-41d4-a716-446655440004", label: "Dermatology" },
+  { value: "550e8400-e29b-41d4-a716-446655440005", label: "Gynecology" },
+  { value: "550e8400-e29b-41d4-a716-446655440006", label: "Pediatrics" },
 ];
 
 const doctorsByDepartment: Record<string, Array<{ value: string; label: string }>> = {
-  general: [
-    { value: "dr-sharma", label: "Dr. Sharma" },
-    { value: "dr-patel", label: "Dr. Patel" },
+  "550e8400-e29b-41d4-a716-446655440000": [
+    { value: "660e8400-e29b-41d4-a716-446655440000", label: "Dr. Sharma" },
+    { value: "660e8400-e29b-41d4-a716-446655440001", label: "Dr. Patel" },
   ],
-  cardiology: [
-    { value: "dr-gupta", label: "Dr. Gupta" },
-    { value: "dr-verma", label: "Dr. Verma" },
+  "550e8400-e29b-41d4-a716-446655440001": [
+    { value: "660e8400-e29b-41d4-a716-446655440002", label: "Dr. Gupta" },
+    { value: "660e8400-e29b-41d4-a716-446655440003", label: "Dr. Verma" },
   ],
-  orthopedics: [
-    { value: "dr-singh", label: "Dr. Singh" },
-    { value: "dr-reddy", label: "Dr. Reddy" },
+  "550e8400-e29b-41d4-a716-446655440002": [
+    { value: "660e8400-e29b-41d4-a716-446655440004", label: "Dr. Singh" },
+    { value: "660e8400-e29b-41d4-a716-446655440005", label: "Dr. Reddy" },
   ],
-  neurology: [
-    { value: "dr-kumar", label: "Dr. Kumar" },
-    { value: "dr-mishra", label: "Dr. Mishra" },
+  "550e8400-e29b-41d4-a716-446655440003": [
+    { value: "660e8400-e29b-41d4-a716-446655440006", label: "Dr. Kumar" },
+    { value: "660e8400-e29b-41d4-a716-446655440007", label: "Dr. Mishra" },
   ],
-  dermatology: [
-    { value: "dr-joshi", label: "Dr. Joshi" },
-    { value: "dr-das", label: "Dr. Das" },
+  "550e8400-e29b-41d4-a716-446655440004": [
+    { value: "660e8400-e29b-41d4-a716-446655440008", label: "Dr. Joshi" },
+    { value: "660e8400-e29b-41d4-a716-446655440009", label: "Dr. Das" },
   ],
-  gynecology: [
-    { value: "dr-shah", label: "Dr. Shah" },
-    { value: "dr-desai", label: "Dr. Desai" },
+  "550e8400-e29b-41d4-a716-446655440005": [
+    { value: "660e8400-e29b-41d4-a716-446655440010", label: "Dr. Shah" },
+    { value: "660e8400-e29b-41d4-a716-446655440011", label: "Dr. Desai" },
   ],
-  pediatrics: [
-    { value: "dr-khanna", label: "Dr. Khanna" },
-    { value: "dr-chauhan", label: "Dr. Chauhan" },
+  "550e8400-e29b-41d4-a716-446655440006": [
+    { value: "660e8400-e29b-41d4-a716-446655440012", label: "Dr. Khanna" },
+    { value: "660e8400-e29b-41d4-a716-446655440013", label: "Dr. Chauhan" },
   ],
 };
 
@@ -107,20 +107,78 @@ const AppointmentForm = () => {
         throw new Error("Invalid department or doctor selection");
       }
 
-      // Split the full name into first and last name
-      const nameParts = values.fullName.trim().split(/\s+/);
-      const firstName = nameParts[0];
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      console.log("Creating patient record with values:", {
+        first_name: values.fullName,
+        last_name: '',
+        email: values.email,
+        phone: values.phone,
+        gender: values.gender,
+        status: 'Active'
+      });
 
-      if (!firstName || !lastName) {
-        throw new Error("Please enter both first and last name");
+      // First, create or get the patient record
+      const { data: patientData, error: patientError } = await supabase
+        .from('patients')
+        .upsert({
+          first_name: values.fullName,
+          last_name: '',
+          email: values.email,
+          phone: values.phone,
+          gender: values.gender,
+          status: 'Active',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (patientError) {
+        console.error("Error creating patient:", patientError);
+        throw new Error(`Failed to create patient record: ${patientError.message}`);
       }
+
+      if (!patientData) {
+        throw new Error("Failed to create patient record: No data returned");
+      }
+
+      console.log("Patient record created:", patientData);
+
+      // Create the appointment record with the correct types
+      const appointmentRecord = {
+        patient_id: patientData.id,
+        doctor_id: values.doctor,
+        department_id: values.department,
+        date: format(values.date, 'yyyy-MM-dd'),
+        time: values.time,
+        status: 'Scheduled',
+        notes: values.message,
+        created_at: new Date().toISOString()
+      };
+
+      console.log("Creating appointment with record:", appointmentRecord);
+
+      const { data: appointmentData, error: appointmentError } = await supabase
+        .from('appointments')
+        .insert(appointmentRecord)
+        .select()
+        .single();
+
+      if (appointmentError) {
+        console.error("Error creating appointment:", appointmentError);
+        throw new Error(`Failed to create appointment: ${appointmentError.message}`);
+      }
+
+      if (!appointmentData) {
+        throw new Error("Failed to create appointment record: No data returned");
+      }
+
+      console.log("Appointment created successfully:", appointmentData);
 
       // Navigate to confirmation page with the appointment details
       navigate("/appointment/confirmation", { 
         state: { 
-          firstName,
-          lastName,
+          firstName: values.fullName,
+          lastName: '',
           email: values.email,
           phone: values.phone,
           date: format(values.date, 'MMMM d, yyyy'),
