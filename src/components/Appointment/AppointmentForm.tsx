@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppointmentConfirmation } from './AppointmentConfirmation';
+import AppointmentConfirmation from './AppointmentConfirmation';
 
 const appointmentSchema = z.object({
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),

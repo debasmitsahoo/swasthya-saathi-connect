@@ -88,4 +88,5 @@ const AppointmentConfirmation = ({ appointment }: AppointmentConfirmationProps) 
   );
 };
 
+export { AppointmentConfirmation };
 export default AppointmentConfirmation; 
