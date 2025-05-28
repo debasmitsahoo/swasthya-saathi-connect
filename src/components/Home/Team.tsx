@@ -30,19 +30,48 @@ const Team = () => {
     {
       name: "Debasmit Sahoo",
       rollNo: "2204000629146014",
-      image: "https://img.freepik.com/free-photo/portrait-smiling-happy-young-man_171337-1532.jpg"
+      image: "/debasmit.svg"
     },
     {
       name: "Monalisha Gochhayat",
       rollNo: "2204000629146015",
-      image: "https://img.freepik.com/free-photo/portrait-smiling-happy-young-woman_171337-1532.jpg"
+      image: "/monalisha.avif"
     },
     {
       name: "Ayush Achary",
       rollNo: "2204000629146011",
-      image: "https://img.freepik.com/free-photo/portrait-smiling-happy-young-man_171337-1532.jpg"
+      image: "/ayush.svg"
     },
-    
+    {
+      name: "Abhilash Tripathy",
+      rollNo: "220400062914603",
+      image: "/abhilash.svg"
+    },
+    {
+      name: "Sanita Rani Sardar",
+      rollNo: "2204000629146040",
+      image: "/sanita.svg"
+    },
+    {
+      name: "Abhinash Dalbehera",
+      rollNo: "22040006291460",
+      image: "/abhinash.svg"
+    },
+    {
+      name: "Ashutosh Mishra",
+      rollNo: "2204000629146009",
+      image: "/asutosh.svg"
+    },
+    {
+      name: "Soumya Lenka",
+      rollNo: "2204000629146046046",
+      image: "/soumya.svg"
+    },
+    {
+      name: "Deba Prakash Bhanja",
+      rollNo: "2204000629146013",
+      image: "/deb.svg"
+    }
   ];
 
   return (
@@ -57,7 +86,7 @@ const Team = () => {
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://img.freepik.com/free-photo/portrait-smiling-happy-young-woman_171337-1532.jpg"
+                  src="/Mamavatar.webp"
                   alt="Mrs. Ronali Mohanty"
                   className="w-full h-full object-cover"
                 />
