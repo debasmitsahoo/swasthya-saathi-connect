@@ -1,0 +1,51 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-content, .print-content * {
+    visibility: visible;
+  }
+  .print-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  .print-content .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .print-content .card-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .print-content .card-content {
+    padding: 0;
+  }
+  .print-content .reference-number {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .print-content .section {
+    margin-bottom: 20px;
+  }
+  .print-content .section-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+  }
+  .print-content .info-row {
+    margin-bottom: 5px;
+  }
+  .print-content .notes {
+    margin-top: 20px;
+    font-size: 12px;
+  }
+  .no-print {
+    display: none !important;
+  }
+} 
