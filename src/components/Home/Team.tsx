@@ -34,7 +34,7 @@ const Team = () => {
     },
     {
       name: "Monalisha Gochhayat",
-      rollNo: "2204000629146015",
+      rollNo: "2204000629146024",
       image: "/monalisha.avif"
     },
     {
@@ -44,7 +44,7 @@ const Team = () => {
     },
     {
       name: "Abhilash Tripathy",
-      rollNo: "220400062914603",
+      rollNo: "220400062914602",
       image: "/abhilash.svg"
     },
     {
@@ -54,7 +54,7 @@ const Team = () => {
     },
     {
       name: "Abhinash Dalbehera",
-      rollNo: "22040006291460",
+      rollNo: "22040006291406",
       image: "/abhinash.svg"
     },
     {
