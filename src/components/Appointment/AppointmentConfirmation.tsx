@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { CheckCircle2, Printer } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import './AppointmentConfirmation.css';
+import styles from './AppointmentConfirmation.module.css';
 
 interface AppointmentConfirmationProps {
   appointment: {
@@ -33,41 +33,41 @@ const AppointmentConfirmation = ({ appointment }: AppointmentConfirmationProps) 
   };
 
   return (
-    <div className="print-content">
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader className="text-center">
+    <div className={styles.printContent}>
+      <Card className={styles.card}>
+        <CardHeader className={styles.cardHeader}>
           <CardTitle className="text-2xl font-bold text-medical-500">
             Appointment Confirmation
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={styles.cardContent}>
           <div className="text-center mb-6">
-            <div className="text-4xl font-bold text-medical-500 mb-2 reference-number">
+            <div className={`text-4xl font-bold text-medical-500 mb-2 ${styles.referenceNumber}`}>
               {appointment.reference_number}
             </div>
             <p className="text-gray-500">Reference Number</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="section">
-              <h3 className="font-semibold mb-2 section-title">Patient Information</h3>
-              <div className="info-row">{`${appointment.patient.first_name} ${appointment.patient.last_name}`}</div>
-              <div className="info-row">{appointment.patient.email}</div>
-              <div className="info-row">{appointment.patient.phone}</div>
+            <div className={styles.section}>
+              <h3 className={`font-semibold mb-2 ${styles.sectionTitle}`}>Patient Information</h3>
+              <div className={styles.infoRow}>{`${appointment.patient.first_name} ${appointment.patient.last_name}`}</div>
+              <div className={styles.infoRow}>{appointment.patient.email}</div>
+              <div className={styles.infoRow}>{appointment.patient.phone}</div>
             </div>
 
-            <div className="section">
-              <h3 className="font-semibold mb-2 section-title">Appointment Details</h3>
-              <div className="info-row"><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</div>
-              <div className="info-row"><strong>Time:</strong> {appointment.time}</div>
-              <div className="info-row"><strong>Doctor:</strong> {appointment.doctor.name}</div>
-              <div className="info-row"><strong>Specialization:</strong> {appointment.doctor.specialization}</div>
-              <div className="info-row"><strong>Department:</strong> {appointment.department.name}</div>
+            <div className={styles.section}>
+              <h3 className={`font-semibold mb-2 ${styles.sectionTitle}`}>Appointment Details</h3>
+              <div className={styles.infoRow}><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</div>
+              <div className={styles.infoRow}><strong>Time:</strong> {appointment.time}</div>
+              <div className={styles.infoRow}><strong>Doctor:</strong> {appointment.doctor.name}</div>
+              <div className={styles.infoRow}><strong>Specialization:</strong> {appointment.doctor.specialization}</div>
+              <div className={styles.infoRow}><strong>Department:</strong> {appointment.department.name}</div>
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg notes">
-            <h3 className="font-semibold mb-2 section-title">Important Notes</h3>
+          <div className={`bg-gray-50 p-4 rounded-lg ${styles.notes}`}>
+            <h3 className={`font-semibold mb-2 ${styles.sectionTitle}`}>Important Notes</h3>
             <ul className="list-disc list-inside space-y-1 text-sm">
               <li>Please arrive 15 minutes before your appointment time</li>
               <li>Bring your ID and insurance card (if applicable)</li>
@@ -76,7 +76,7 @@ const AppointmentConfirmation = ({ appointment }: AppointmentConfirmationProps) 
             </ul>
           </div>
 
-          <div className="text-center no-print">
+          <div className={`text-center ${styles.noPrint}`}>
             <Button onClick={handlePrint} className="flex items-center gap-2">
               <Printer className="w-4 h-4" />
               Print Confirmation
