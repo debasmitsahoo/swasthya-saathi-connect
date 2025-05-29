@@ -74,6 +74,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { initializeDatabase } from '@/integrations/supabase/init';
 import { testDatabaseConnection } from '@/integrations/supabase/client';
+import { Link } from "react-router-dom";
 
 export interface Column {
   key: string;
@@ -1442,6 +1443,11 @@ const AdminDashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t py-2 px-4 text-center text-sm text-gray-600">
+        Made with ❤️ by <Link to="/home#team" className="text-medical-600 hover:underline">Group 1</Link> - Regional College Of Management, Bhubaneswar
+      </div>
     </div>
   );
 };
