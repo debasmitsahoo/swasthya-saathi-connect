@@ -21,6 +21,10 @@ const appointmentSchema = z.object({
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().min(10, { message: "Phone number must be at least 10 digits" }),
+  age: z.string().min(1, { message: "Age is required" }).refine((val) => {
+    const num = parseInt(val);
+    return !isNaN(num) && num > 0 && num < 120;
+  }, { message: "Please enter a valid age between 1 and 120" }),
   gender: z.string({ required_error: "Please select your gender" }),
   date: z.date({ required_error: "Please select a date" }),
   time: z.string({ required_error: "Please select a time" }),
@@ -90,6 +94,7 @@ const AppointmentForm = () => {
       fullName: "",
       email: "",
       phone: "",
+      age: "",
       gender: "",
       message: "",
     },
@@ -125,6 +130,7 @@ const AppointmentForm = () => {
             last_name: '',
             email: values.email,
             phone: values.phone,
+            age: parseInt(values.age),
             gender: values.gender,
             status: 'Active',
             created_at: new Date().toISOString(),
@@ -293,6 +299,20 @@ const AppointmentForm = () => {
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter your phone number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Enter your age" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

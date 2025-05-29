@@ -158,13 +158,14 @@ interface AppointmentInsert {
   updated_at?: string;
 }
 
-// Update the Patient interface to match the database schema
+// Update the Patient interface to include age
 interface Patient {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
+  age: number;
   appointments?: {
     id: string;
     date: string;
@@ -374,7 +375,7 @@ const AdminDashboard = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoading, setPatientsLoading] = useState(false);
 
-  // Update the fetchPatients function to match the schema
+  // Update the fetchPatients function to include age in the select query
   const fetchPatients = async () => {
     setPatientsLoading(true);
     try {
@@ -386,6 +387,7 @@ const AdminDashboard = () => {
           last_name,
           email,
           phone,
+          age,
           appointments:appointments (
             id,
             date,
@@ -460,6 +462,7 @@ const AdminDashboard = () => {
               },
               { key: "email", label: "Email" },
               { key: "phone", label: "Phone" },
+              { key: "age", label: "Age" },
               { 
                 key: "appointments", 
                 label: "Appointments",
