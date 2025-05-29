@@ -92,7 +92,7 @@ const Hero = () => {
             </div>
             
             {/* Floating Elements */}
-            <div className="absolute -top-6 -right-6 bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg animate-float" style={{ animationDelay: '1s' }}>
+            <div className="absolute -top-6 -right-6 bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg animate-float z-20" style={{ animationDelay: '1s' }}>
               <div className="flex items-center">
                 <div className="bg-green-100 p-2 rounded-full">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +106,7 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="absolute bottom-6 -left-6 bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg animate-float" style={{ animationDelay: '1.5s' }}>
+            <div className="absolute bottom-6 -left-6 bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg animate-float z-20" style={{ animationDelay: '1.5s' }}>
               <div className="flex items-center">
                 <div className="bg-blue-100 p-2 rounded-full">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -120,13 +120,6 @@ const Hero = () => {
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full h-full">
-            <path fill="#ffffff" fillOpacity="1" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,218.7C840,213,960,171,1080,165.3C1200,160,1320,192,1380,208L1440,224L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-          </svg>
         </div>
       </div>
     </div>
