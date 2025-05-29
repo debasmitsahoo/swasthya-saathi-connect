@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,9 +51,17 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call - in a real app, this would send data to backend
-      console.log("Form submitted:", values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch("https://formspree.io/f/xeogydgv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
       
       // Show success message
       toast({
@@ -153,39 +160,37 @@ const Contact = () => {
                   )}
                 />
                 
-                <div className="text-center">
-                  <Button 
-                    type="submit" 
-                    className="w-full md:w-auto bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2">
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Sending...
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Mail size={18} />
-                        Send Message
-                      </span>
-                    )}
-                  </Button>
-                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto bg-gradient-to-r from-medical-600 to-medical-700 hover:from-medical-700 hover:to-medical-800"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Mail size={18} />
+                      Send Message
+                    </span>
+                  )}
+                </Button>
               </form>
             </Form>
           </div>
           
-          <div className="max-w-3xl mx-auto mt-16 grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
               <div className="w-12 h-12 bg-medical-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Mail className="text-medical-600" />
               </div>
               <h3 className="text-lg font-semibold mb-2">Email Us</h3>
-              <p className="text-gray-600">info@swasthyasaathi.com</p>
+              <p className="text-gray-600">debasmitfordev@gmail.com</p>
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -206,7 +211,7 @@ const Contact = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold mb-2">Visit Us</h3>
-              <p className="text-gray-600">123 Medical Street, Healthville, India</p>
+              <p className="text-gray-600">Regional College of Management, BBSR</p>
             </div>
           </div>
         </div>
