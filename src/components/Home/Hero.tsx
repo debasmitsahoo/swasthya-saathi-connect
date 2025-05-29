@@ -40,11 +40,16 @@ const Hero = () => {
               Quality Healthcare for <span className="text-medical-600">Everyone</span>
             </h1>
             
-            <p className="staggered-item staggered-enter-1 text-gray-700 text-lg md:text-xl leading-relaxed">
-              Experience top-quality healthcare services with compassion at Swasthya Saathi. We are committed to providing accessible and affordable healthcare for all.
-            </p>
+            <div className="staggered-item staggered-enter-1 mt-4">
+              <p className="text-2xl md:text-3xl font-bold tracking-wide">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-medical-500 via-medical-600 to-medical-700 animate-gradient-x">
+                  Aapke Swasth Ki Kahani Ham Likhenge Swasthya Saathi Ke Saath
+                </span>
+              </p>
+              <div className="w-32 h-1 bg-gradient-to-r from-medical-500 via-medical-600 to-medical-700 mt-2 rounded-full animate-pulse-slow"></div>
+            </div>
             
-            <div className="staggered-item staggered-enter-2 flex flex-col sm:flex-row gap-4 pt-2">
+            <div className="staggered-item staggered-enter-2 flex flex-col sm:flex-row gap-4 pt-8">
               <Link to="/appointment">
                 <Button className="bg-medical-600 hover:bg-medical-700 text-white px-8 py-6 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center">
                   Book Appointment
@@ -53,17 +58,21 @@ const Hero = () => {
                   </svg>
                 </Button>
               </Link>
-              <button 
+              <Button 
                 onClick={() => {
                   const servicesSection = document.getElementById("services");
                   if (servicesSection) {
                     servicesSection.scrollIntoView({ behavior: "smooth" });
                   }
                 }}
-                className="border border-medical-600 text-medical-700 hover:bg-medical-50 px-8 py-6 text-lg rounded-lg"
+                variant="outline"
+                className="bg-white hover:bg-medical-50 text-medical-700 border-medical-600 px-8 py-6 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center"
               >
                 Our Services
-              </button>
+                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </Button>
             </div>
             
             <div className="staggered-item staggered-enter-3 grid grid-cols-3 gap-4 pt-4 md:pt-8">

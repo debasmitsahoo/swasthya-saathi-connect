@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -52,10 +51,13 @@ const Navbar = () => {
       <div className="container mx-auto flex items-center justify-between px-4 md:px-6">
         <Link to="/" className="flex items-center space-x-2 group">
           <div
-            className={`rounded-full bg-gradient-to-r from-medical-700 to-medical-500 p-1.5 
+            className={`rounded-full bg-gradient-to-r from-medical-700 to-medical-500 p-2 
             transition-all duration-300 ${isScrolled ? "scale-90" : ""} group-hover:scale-105`}
           >
-            <span className="text-white font-bold text-xl">SS</span>
+            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 8c-1.7 0-3 1.3-3 3v2c0 1.7-1.3 3-3 3h-2c-1.7 0-3-1.3-3-3v-2c0-1.7-1.3-3-3-3H2v10h17c1.7 0 3-1.3 3-3v-4c0-1.7-1.3-3-3-3z" fill="currentColor"/>
+              <path d="M12 2c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2s2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="currentColor"/>
+            </svg>
           </div>
           <span
             className={`font-poppins font-semibold text-xl ${
