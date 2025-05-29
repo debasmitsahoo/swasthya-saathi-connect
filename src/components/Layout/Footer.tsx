@@ -143,6 +143,15 @@ const Footer = () => {
           <p className="text-center text-gray-400">
             &copy; {new Date().getFullYear()} Swasthya Saathi Hospital Management System. All rights reserved.
           </p>
+          <div className="flex justify-center space-x-4 mt-2">
+            <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors duration-300">
+              Privacy Policy
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link to="/terms-conditions" className="text-gray-400 hover:text-white transition-colors duration-300">
+              Terms & Conditions
+            </Link>
+          </div>
           <p className="text-center text-gray-400 mt-2">
             Built with ❤️ by Group 1 (BCA 22-25)<br />
             Regional College Of Management
