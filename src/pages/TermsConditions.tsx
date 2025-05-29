@@ -1,11 +1,34 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const TermsConditions = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-medical-800 mb-6">Terms and Conditions</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-medical-800">Terms and Conditions</h1>
+            <Link
+              to="/home"
+              className="inline-flex items-center px-4 py-2 bg-medical-600 text-white rounded-md hover:bg-medical-700 transition-colors duration-300"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Back to Home
+            </Link>
+          </div>
           
           <div className="space-y-6 text-gray-700">
             <section>
