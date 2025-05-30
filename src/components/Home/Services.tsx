@@ -1,4 +1,3 @@
-
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,17 +16,6 @@ const services = [
       "Our expert physicians provide comprehensive general health consultations for patients of all ages.",
   },
   {
-    id: "cardiology",
-    icon: (
-      <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-      </svg>
-    ),
-    title: "Cardiology",
-    description:
-      "Specialized care for heart conditions including diagnostics, treatment, and preventive care.",
-  },
-  {
     id: "laboratory",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -39,16 +27,27 @@ const services = [
       "Advanced diagnostic laboratory services with quick, accurate results for informed medical decisions.",
   },
   {
-    id: "surgery",
+    id: "specialist",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
       </svg>
     ),
-    title: "Surgery",
+    title: "Specialist Consultations",
     description:
-      "Expert surgical care with state-of-the-art facilities and experienced surgeons across specialties.",
+      "Access to expert specialists across various medical fields providing advanced, specialized care.",
   },
+  {
+    id: "pharmacy",
+    icon: (
+      <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+      </svg>
+    ),
+    title: "Pharmacy Services",
+    description:
+      "Comprehensive pharmacy services with prescription filling, medication management, and expert pharmaceutical advice.",
+  }
 ];
 
 const Services = () => {

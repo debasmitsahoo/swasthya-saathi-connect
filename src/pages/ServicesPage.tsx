@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/Layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -18,17 +17,6 @@ const services = [
       "Our expert physicians provide comprehensive general health consultations for patients of all ages.",
   },
   {
-    id: "cardiology",
-    icon: (
-      <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-      </svg>
-    ),
-    title: "Cardiology",
-    description:
-      "Specialized care for heart conditions including diagnostics, treatment, and preventive care.",
-  },
-  {
     id: "laboratory",
     icon: (
       <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -38,17 +26,6 @@ const services = [
     title: "Laboratory Services",
     description:
       "Advanced diagnostic laboratory services with quick, accurate results for informed medical decisions.",
-  },
-  {
-    id: "surgery",
-    icon: (
-      <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-      </svg>
-    ),
-    title: "Surgery",
-    description:
-      "Expert surgical care with state-of-the-art facilities and experienced surgeons across specialties.",
   },
   {
     id: "emergency",
@@ -82,18 +59,7 @@ const services = [
     title: "Pharmacy Services",
     description:
       "Comprehensive pharmacy services with prescription filling, medication management, and expert pharmaceutical advice.",
-  },
-  {
-    id: "pediatrics",
-    icon: (
-      <svg className="w-12 h-12 text-medical-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-      </svg>
-    ),
-    title: "Pediatrics",
-    description:
-      "Specialized healthcare for infants, children and adolescents, focusing on growth, development, and childhood illnesses.",
-  },
+  }
 ];
 
 const ServicesPage = () => {
